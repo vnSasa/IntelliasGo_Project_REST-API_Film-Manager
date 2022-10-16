@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/service"
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/handler"
 	"syscall"
 	"os/signal"
 	"os"
@@ -10,9 +13,13 @@ import (
 )
 
 func main()  {
+	repos := repository.NewRepository()
+	services := service.NewService(repos)
+	handlers := handler.NewHandler(services)
+
 	srv := new(app.Server)
 	go func() {
-		if err := srv.Run(viper.GetString("port")); err != nil {
+		if err := srv.Run(viper.GetString("port"), handlers.InitRoute()); err != nil {
 			logrus.Fatalf("error occured while running http server: %s", err.Error())
 		}
 	}()
