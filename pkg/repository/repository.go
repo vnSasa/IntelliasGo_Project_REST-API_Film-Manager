@@ -1,11 +1,13 @@
 package repository
 
 import (
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/jmoiron/sqlx"
 )
 
 type Authorization interface {
-
+	CreateUser(user app.User) (int, error)
+	GetUser(login, password string) (app.User, error)
 }
 
 type FilmsList interface {
@@ -33,5 +35,7 @@ type Repository struct {
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
-	return &Repository{}
+	return &Repository{
+		Authorization: NewAuthPostgres(db),
+	}
 }
