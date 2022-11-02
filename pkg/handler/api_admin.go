@@ -1,15 +1,19 @@
 package handler
 
 import (
+	"net/http"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) createDiretor(c *gin.Context) {
-
+	
 }
 
 func (h *Handler) getAllDiretors(c *gin.Context) {
-	
+	id, _ := c.Get(userCtx)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"id": id,
+	})
 }
 
 func (h *Handler) getDiretorById(c *gin.Context) {

@@ -21,8 +21,8 @@ func (h *Handler) InitRoute() *gin.Engine {
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
 	}
-
-	apiAdmin := router.Group("/api-admin")
+	
+	apiAdmin := router.Group("/api-admin", h.adminIdentity)
 	{
 		directors := apiAdmin.Group("/director")
 		{
@@ -42,12 +42,12 @@ func (h *Handler) InitRoute() *gin.Engine {
 			}
 		}
 	}
-
-	apiUser := router.Group("api-user")
+	
+	apiUser := router.Group("/api-user", h.userIdentity)
 	{
-		apiUser.GET("/directors",h.getDirectors)
+		apiUser.GET("/directors", h.getDirectors)
 		apiUser.GET("/films", h.getFilms)
-
+		
 		favourite := apiUser.Group("/favourite")
 		{
 			favourite.POST("/create", h.createFavourite)

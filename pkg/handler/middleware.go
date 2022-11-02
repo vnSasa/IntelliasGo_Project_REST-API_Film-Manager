@@ -12,26 +12,58 @@ const (
 	userCtx = "userId"
 )
 
-func (h *Handler) userIdentity(c *gin.Context) {
-	header := c.GetHeader(authorizationHeader)
-	if header == "" {
-		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
-		return
-	}
-
-	headerParts := strings.Split(header, " ")
-	if len(headerParts) != 2 {
-		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
-		return
-	}
-
-	userId, err := h.services.Authorization.ParseToken(headerParts[1])
+func (h *Handler) adminIdentity(c *gin.Context) {
+	userId, err := h.parseAuthHeaderAdmin(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-
 	c.Set(userCtx, userId)
+}
+
+func (h *Handler) parseAuthHeaderAdmin(c *gin.Context) (int, error) {
+	header := c.GetHeader(authorizationHeader)
+	if header == "" {
+		return 0, errors.New("empty auth header")
+	}
+
+	headerParts := strings.Split(header, " ")
+	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		return 0, errors.New("invalid auth header")
+	}
+
+	if len(headerParts[1]) == 0 {
+		return 0, errors.New("token is empty")
+	}
+
+	return h.services.Authorization.ParseTokenAdmin(headerParts[1])
+}
+
+func (h *Handler) userIdentity(c *gin.Context) {
+	userId, err := h.parseAuthHeaderUser(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	c.Set(userCtx, userId)
+}
+
+func (h *Handler) parseAuthHeaderUser(c *gin.Context) (int, error) {
+	header := c.GetHeader(authorizationHeader)
+	if header == "" {
+		return 0, errors.New("empty auth header")
+	}
+
+	headerParts := strings.Split(header, " ")
+	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		return 0, errors.New("invalid auth header")
+	}
+
+	if len(headerParts[1]) == 0 {
+		return 0, errors.New("token is empty")
+	}
+
+	return h.services.Authorization.ParseTokenUser(headerParts[1])
 }
 
 func getUserId(c *gin.Context) (int, error) {

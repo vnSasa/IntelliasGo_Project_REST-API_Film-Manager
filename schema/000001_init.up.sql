@@ -2,8 +2,9 @@ CREATE TABLE users
 (
     id serial not null unique,
     login varchar(255) not null unique,
+    password_hash varchar(255) not null,
     age varchar(255) not null,
-    password_hash varchar(255) not null
+    role int not null
 );
 
 CREATE TABLE director
