@@ -8,8 +8,7 @@ import (
 type Authorization interface {
 	CreateUser(user app.User) (int, error)
 	GenerateToken(login, password string) (string, error)
-	ParseTokenAdmin(token string) (int, error)
-	ParseTokenUser(token string) (int, error)
+	ParseToken(token string) (int, int, error)
 }
 
 type FilmsList interface {
