@@ -41,19 +41,20 @@ func main()  {
 	handlers := handler.NewHandler(services)
 
 	srv := new(app.Server)
+	
 	go func() {
 		if err := srv.Run(viper.GetString("port"), handlers.InitRoute()); err != nil {
 			logrus.Fatalf("error occured while running http server: %s", err.Error())
 		}
 	}()
 
-	logrus.Print("TodoApp Started")
-
+	logrus.Print("FilmsApp Started")
+	
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
-	logrus.Print("TodoApp Shutting Down")
+	logrus.Print("FilmsApp Shutting Down")
 
 }
 

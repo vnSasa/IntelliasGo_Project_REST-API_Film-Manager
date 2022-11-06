@@ -3,8 +3,7 @@ CREATE TABLE users
     id serial not null unique,
     login varchar(255) not null unique,
     password_hash varchar(255) not null,
-    age varchar(255) not null,
-    role int not null
+    age varchar(255) not null
 );
 
 CREATE TABLE director
@@ -25,15 +24,12 @@ CREATE TABLE film
     minutes varchar(255) not null
 );
 
-
-
 CREATE TABLE favourite
 (
     id serial not null unique,
     user_id int references users (id) on delete cascade not null,
     film_id int references film (id) on delete cascade not null
 );
-
 
 CREATE TABLE wishlist
 (

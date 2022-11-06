@@ -6,6 +6,7 @@ import (
 )
 
 type Authorization interface {
+	CreateAdmin(admin app.User) (int, error)
 	CreateUser(user app.User) (int, error)
 	GetUser(login, password string) (app.User, error)
 }
