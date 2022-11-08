@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	tokenTTL = 10 * time.Minute
+	tokenTTLup = 10 * time.Minute
+	tokenTTLdown = 1 * time.Second
 	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
 	salt = "hjqrhjqw124617ajfhajs"
 )
@@ -50,7 +51,7 @@ func (s *AuthService) GenerateToken(login, password string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		StandardClaims: jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+		ExpiresAt: time.Now().Add(tokenTTLup).Unix(),
 		IssuedAt: time.Now().Unix(),
 		},
 		UserId: user.Id,
@@ -60,7 +61,7 @@ func (s *AuthService) GenerateToken(login, password string) (string, error) {
 	return token.SignedString([]byte(signingKey))
 }
 
-func (s *AuthService) ParseToken(accessToken string) (int, error) {
+func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
@@ -68,14 +69,14 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 		return []byte(signingKey), nil
 	})
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, errors.New("token claims are not of type *tokenClaims")
+		return 0, "", errors.New("token claims are not of type *tokenClaims")
 	}
-
-	return claims.UserId, nil
+	
+	return claims.UserId, claims.UserLogin, nil
 }
 
 func generatePasswordHash(password string) string {

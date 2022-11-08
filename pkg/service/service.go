@@ -9,7 +9,7 @@ type Authorization interface {
 	CreateAdmin(admin app.User) (int, error)
 	CreateUser(user app.User) (int, error)
 	GenerateToken(login, password string) (string, error)
-	ParseToken(token string) (int, error)
+	ParseToken(token string) (int, string, error)
 }
 
 type FilmsList interface {
