@@ -8,7 +8,9 @@ import (
 type Authorization interface {
 	CreateAdmin(admin app.User) (int, error)
 	CreateUser(user app.User) (int, error)
+	DeleteUser(user app.User) (int, error)
 	GetUser(login, password string) (app.User, error)
+	GetUserById(id int) (app.User, error)
 }
 
 type FilmsList interface {

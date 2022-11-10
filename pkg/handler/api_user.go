@@ -13,9 +13,13 @@ func (h *Handler) getDirectors(c *gin.Context) {
 }
 
 func (h *Handler) getFilms(c *gin.Context) {
-	id, _ := c.Get(userCtx)
+	userLogin, err := h.getUserLoginById(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+		"login": userLogin,
 	})
 }
 

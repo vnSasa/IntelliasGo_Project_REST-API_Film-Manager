@@ -43,6 +43,16 @@ func (s *AuthService) CreateUser(user app.User) (int, error) {
 	return s.repo.CreateUser(user)
 }
 
+func (s *AuthService) GetUserById(id int) (app.User, error) {
+	return s.repo.GetUserById(id)
+}
+
+func (s *AuthService) DeleteUser(user app.User) (int, error) {
+	user.Password = generatePasswordHash(user.Password)
+
+	return s.repo.DeleteUser(user)
+}
+
 func (s *AuthService) GenerateToken(login, password string) (string, error) {
 	user, err := s.repo.GetUser(login, generatePasswordHash(password))
 	if err != nil {

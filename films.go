@@ -1,5 +1,11 @@
 package app
 
+type DirectorList struct {
+	Id int	`json:"id" db:"id"`
+	Name string	`json:"name" db:"name" binding:"required"`
+	DateOfBirth string	`json:"date_of_birth" db:"date_of_birth" binding:"required"`
+}
+
 type FilmList struct {
 	Id int	`json:"id" db:"id"`
 	Name string	`json:"name" db:"name" binding:"required"`
@@ -10,20 +16,14 @@ type FilmList struct {
 	Minutes float32	`json:"minutes" db:"minutes" binding:"required"`
 }
 
-type DirectorList struct {
-	Id int	`json:"id" db:"id"`
-	Name string	`json:"name" db:"name" binding:"required"`
-	DateOfBirth string	`json:"date_of_birth" db:"date_of_birth" binding:"required"`
-}
-
 type UserFavoriteFilms struct {
 	Id int
-	UserId int	
+	UserLogin int	
 	FilmId int
 }
 
 type UserWishFilms struct {
 	Id int
-	UserId int
+	UserLogin int
 	FilmId int
 }

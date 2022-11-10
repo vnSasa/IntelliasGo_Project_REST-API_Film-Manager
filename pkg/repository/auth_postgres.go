@@ -38,10 +38,28 @@ func (r *AuthPostgres) CreateUser(user app.User) (int, error) {
 	return id, nil
 }
 
+func (r *AuthPostgres) DeleteUser(user app.User) (int, error) {
+	var id int
+	query := fmt.Sprintf("DELETE FROM %s WHERE login=$1 RETURNING id", usersTable)
+	row := r.db.QueryRow(query, user.Login)
+	if err := row.Scan(&id); err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
 func (r *AuthPostgres) GetUser(login, password string) (app.User, error) {
 	var user app.User
 	query := fmt.Sprintf("SELECT id, login FROM %s WHERE login=$1 AND password_hash=$2", usersTable)
 	err := r.db.Get(&user, query, login, password)
+
+	return user, err
+}
+
+func (r *AuthPostgres) GetUserById(id int) (app.User, error) {
+	var user app.User
+	query := fmt.Sprintf("SELECT login FROM %s WHERE id=$1", usersTable)
+	err := r.db.Get(&user, query, id)
 
 	return user, err
 }
