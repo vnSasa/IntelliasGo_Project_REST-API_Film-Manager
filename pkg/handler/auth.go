@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strings"
 	"net/http"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/gin-gonic/gin"
@@ -86,12 +87,19 @@ func (h *Handler) logout(c *gin.Context) {
 		"id": id,
 	})
 
-	id, err = h.services.Authorization.CreateUser(input)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
+	if strings.Compare(input.Login, os.Getenv("ADMIN_LOGIN")) == 0 {
+		id, err = h.services.Authorization.CreateAdmin(input)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
+		id, err = h.services.Authorization.CreateUser(input)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
-
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
 	})

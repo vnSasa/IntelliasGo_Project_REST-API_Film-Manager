@@ -10,9 +10,14 @@ func (h *Handler) createDiretor(c *gin.Context) {
 }
 
 func (h *Handler) getAllDiretors(c *gin.Context) {
-	id, _ := c.Get(userCtx)
+	user, err := h.getUserById(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+		"login": user.Login,
+		"age": user.Age,
 	})
 }
 

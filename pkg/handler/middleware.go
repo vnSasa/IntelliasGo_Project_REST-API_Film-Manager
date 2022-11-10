@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"os"
 	"strings"
 	"net/http"
@@ -57,23 +58,25 @@ func (h *Handler) parseAuthHeader(c *gin.Context) (int, string, error) {
 	return h.services.Authorization.ParseToken(headerParts[1])
 }
 
-func (h *Handler) getUserLoginById(c *gin.Context) (string, error) {
+func (h *Handler) getUserById(c *gin.Context) (app.User, error) {
+	var user app.User
+	
 	id, ok := c.Get(userCtx)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "user id not found")
-		return "", errors.New("user id not found")
+		return user, errors.New("user id not found")
 	}
 
 	idInt, ok := id.(int)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "user id is invalid type")
-		return "", errors.New("user id not found")
+		return user, errors.New("user id not found")
 	}
 
 	user, err := h.services.Authorization.GetUserById(idInt)
 	if err != nil {
-		return "", err
+		return user, err
 	}
 
-	return user.Login, nil
+	return user, nil
 }

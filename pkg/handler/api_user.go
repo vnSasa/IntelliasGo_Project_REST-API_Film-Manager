@@ -6,20 +6,26 @@ import (
 )
 
 func (h *Handler) getDirectors(c *gin.Context) {
-	id, _ := c.Get(userCtx)
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
-	})
-}
-
-func (h *Handler) getFilms(c *gin.Context) {
-	userLogin, err := h.getUserLoginById(c)
+	user, err := h.getUserById(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"login": userLogin,
+		"login": user.Login,
+		"age": user.Age,
+	})
+}
+
+func (h *Handler) getFilms(c *gin.Context) {
+	user, err := h.getUserById(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"login": user.Login,
+		"age": user.Age,
 	})
 }
 
