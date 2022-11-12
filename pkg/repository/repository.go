@@ -13,11 +13,11 @@ type Authorization interface {
 	GetUserById(id int) (app.User, error)
 }
 
-type FilmsList interface {
-
+type DirectorList interface {
+	Create(userLogin string, director app.DirectorList) (int, error)
 }
 
-type DirectorsFilms interface {
+type FilmsList interface {
 
 }
 
@@ -31,8 +31,8 @@ type WishFilms interface {
 
 type Repository struct {
 	Authorization
+	DirectorList
 	FilmsList
-	DirectorsFilms
 	FavouriteFilms
 	WishFilms
 }
@@ -40,5 +40,6 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
+		DirectorList: NewDirectorPostgres(db),
 	}
 }

@@ -14,11 +14,11 @@ type Authorization interface {
 	ParseToken(token string) (int, string, error)
 }
 
-type FilmsList interface {
-
+type DirectorList interface {
+	Create(userLogin string, director app.DirectorList) (int, error)
 }
 
-type DirectorsFilms interface {
+type FilmsList interface {
 
 }
 
@@ -32,8 +32,8 @@ type WishFilms interface {
 
 type Service struct {
 	Authorization
+	DirectorList
 	FilmsList
-	DirectorsFilms
 	FavouriteFilms
 	WishFilms
 }
@@ -41,5 +41,6 @@ type Service struct {
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
+		DirectorList: NewDirectorService(repos.DirectorList),
 	}
 }

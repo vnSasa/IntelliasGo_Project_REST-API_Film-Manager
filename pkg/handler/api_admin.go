@@ -1,24 +1,37 @@
 package handler
 
 import (
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"net/http"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) createDiretor(c *gin.Context) {
-	
-}
-
-func (h *Handler) getAllDiretors(c *gin.Context) {
 	user, err := h.getUserById(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	
+	var input app.DirectorList
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	id, err := h.services.DirectorList.Create(user.Login, input)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"login": user.Login,
-		"age": user.Age,
+		"id": id,
 	})
+}
+
+func (h *Handler) getAllDiretors(c *gin.Context) {
+	
 }
 
 func (h *Handler) getDiretorById(c *gin.Context) {
