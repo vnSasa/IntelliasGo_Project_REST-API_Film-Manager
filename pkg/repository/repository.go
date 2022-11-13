@@ -14,7 +14,11 @@ type Authorization interface {
 }
 
 type DirectorList interface {
-	Create(userLogin string, director app.DirectorList) (int, error)
+	Create(director app.DirectorList) (int, error)
+	GetAll() ([]app.DirectorList, error)
+	GetById(directorId int) (app.DirectorList, error)
+	Update(directorId int, input app.UpdateDirectorInput) error
+	Delete(directorId int) error
 }
 
 type FilmsList interface {

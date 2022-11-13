@@ -20,7 +20,7 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	if strings.Compare(adminLogin, "admin") != 0 {
+	if strings.Compare(adminLogin, os.Getenv("ADMIN_LOGIN")) != 0 {
 		newErrorResponse(c, http.StatusUnauthorized, "only admin have access")
 		return
 	}

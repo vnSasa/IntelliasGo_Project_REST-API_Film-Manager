@@ -1,5 +1,9 @@
 package app
 
+import (
+	"errors"
+)
+
 type DirectorList struct {
 	Id int	`json:"id" db:"id"`
 	Name string	`json:"name" db:"name" binding:"required"`
@@ -18,12 +22,24 @@ type FilmList struct {
 
 type UserFavoriteFilms struct {
 	Id int
-	UserLogin int	
+	UserId int	
 	FilmId int
 }
 
 type UserWishFilms struct {
 	Id int
-	UserLogin int
+	UserId int
 	FilmId int
+}
+
+type UpdateDirectorInput struct {
+	Name *string `json:"name"`
+	DateOfBirth *string `json:"date_of_birth"`
+}
+
+func (i UpdateDirectorInput) Validate() error {
+	if i.Name == nil && i.DateOfBirth == nil {
+		return errors.New("update structure has no values")
+	}
+	return nil
 }
