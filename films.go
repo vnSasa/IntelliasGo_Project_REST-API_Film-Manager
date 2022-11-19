@@ -4,13 +4,13 @@ import (
 	"errors"
 )
 
-type DirectorList struct {
+type DirectorsList struct {
 	Id int	`json:"id" db:"id"`
 	Name string	`json:"name" db:"name" binding:"required"`
 	DateOfBirth string	`json:"date_of_birth" db:"date_of_birth" binding:"required"`
 }
 
-type FilmList struct {
+type FilmsList struct {
 	Id int	`json:"id" db:"id"`
 	Name string	`json:"name" db:"name" binding:"required"`
 	Genre string	`json:"genre" db:"genre" binding:"required"`
@@ -40,6 +40,27 @@ type UpdateDirectorInput struct {
 func (i UpdateDirectorInput) Validate() error {
 	if i.Name == nil && i.DateOfBirth == nil {
 		return errors.New("update structure has no values")
+	}
+	return nil
+}
+
+type UpdateFilmInput struct {
+	Name *string `json:"name"`
+	Genre *string `json:"genre"`
+	DirectorId *int `json:"direcor_id"`
+	Rate *float32 `json:"rate"`
+	Year *int `json:"year"`
+	Minutes *float32 `json:"minutes"`
+}
+
+func (i UpdateFilmInput) Validate() error {
+	if 	i.Name == nil && 
+		i.Genre == nil && 
+		i.DirectorId == nil && 
+		i.Rate == nil && 
+		i.Year == nil && 
+		i.Minutes == nil {
+			return errors.New("update structure has no values")
 	}
 	return nil
 }

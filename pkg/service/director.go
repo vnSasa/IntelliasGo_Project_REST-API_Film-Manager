@@ -6,22 +6,22 @@ import (
 )
 
 type DirectorService struct {
-	repo repository.DirectorList
+	repo repository.DirectorsList
 }
 
-func NewDirectorService(repo repository.DirectorList) *DirectorService {
+func NewDirectorService(repo repository.DirectorsList) *DirectorService {
 	return &DirectorService{repo: repo}
 }
 
-func (s *DirectorService) Create(director app.DirectorList) (int, error) {
+func (s *DirectorService) Create(director app.DirectorsList) (int, error) {
 	return s.repo.Create(director)
 }
 
-func (s *DirectorService) GetAll() ([]app.DirectorList, error) {
+func (s *DirectorService) GetAll() ([]app.DirectorsList, error) {
 	return s.repo.GetAll()
 }
 
-func (s *DirectorService) GetById(directorId int) (app.DirectorList, error) {
+func (s *DirectorService) GetById(directorId int) (app.DirectorsList, error) {
 	return s.repo.GetById(directorId)
 }
 

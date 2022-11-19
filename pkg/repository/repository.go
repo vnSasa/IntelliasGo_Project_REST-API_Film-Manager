@@ -13,16 +13,20 @@ type Authorization interface {
 	GetUserById(id int) (app.User, error)
 }
 
-type DirectorList interface {
-	Create(director app.DirectorList) (int, error)
-	GetAll() ([]app.DirectorList, error)
-	GetById(directorId int) (app.DirectorList, error)
+type DirectorsList interface {
+	Create(director app.DirectorsList) (int, error)
+	GetAll() ([]app.DirectorsList, error)
+	GetById(directorId int) (app.DirectorsList, error)
 	Update(directorId int, input app.UpdateDirectorInput) error
 	Delete(directorId int) error
 }
 
 type FilmsList interface {
-
+	Create(film app.FilmsList) (int, error)
+	GetAll() ([]app.FilmsList, error)
+	GetById(filmId int) (app.FilmsList, error)
+	Update(filmId int, input app.UpdateFilmInput) error
+	Delete(filmId int) error
 }
 
 type FavouriteFilms interface {
@@ -35,7 +39,7 @@ type WishFilms interface {
 
 type Repository struct {
 	Authorization
-	DirectorList
+	DirectorsList
 	FilmsList
 	FavouriteFilms
 	WishFilms
@@ -44,6 +48,7 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
-		DirectorList: NewDirectorPostgres(db),
+		DirectorsList: NewDirectorPostgres(db),
+		FilmsList: NewFilmPostgres(db),
 	}
 }

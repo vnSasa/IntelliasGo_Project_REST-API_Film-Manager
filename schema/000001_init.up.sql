@@ -16,7 +16,7 @@ CREATE TABLE director
 CREATE TABLE film
 (
     id serial not null unique,
-    name varchar(255) not null,
+    name varchar(255) not null unique,
     genre varchar(255) not null,
     director_id int references director (id) on delete cascade not null,
     rate varchar(255) not null,

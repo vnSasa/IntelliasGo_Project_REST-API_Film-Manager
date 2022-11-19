@@ -34,15 +34,14 @@ func (h *Handler) InitRoute() *gin.Engine {
 			directors.GET("/:id", h.getDiretorById)
 			directors.PUT("/:id", h.updateDiretor)
 			directors.DELETE("/:id", h.deleteDiretor)
-
-			films := directors.Group("/films")
-			{
-				films.POST("/create", h.createFilm)
-				films.GET("/all", h.getAllFilms)
-				films.GET("/:id", h.getFilmById)
-				films.PUT("/:id", h.updateFilm)
-				films.DELETE("/:id", h.deleteFilm)
-			}
+		}
+		films := apiAdmin.Group("/films")
+		{
+			films.POST("/create", h.createFilm)
+			films.GET("/all", h.getAllFilms)
+			films.GET("/:id", h.getFilmById)
+			films.PUT("/:id", h.updateFilm)
+			films.DELETE("/:id", h.deleteFilm)
 		}
 	}
 	

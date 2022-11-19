@@ -5,22 +5,17 @@ import (
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"errors"
 )
 
 func (h *Handler) createDiretor(c *gin.Context) {
-	_, err := h.getUserById(c)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	
-	var input app.DirectorList
+	var input app.DirectorsList
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.DirectorList.Create(input)
+	id, err := h.services.DirectorsList.Create(input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -32,18 +27,18 @@ func (h *Handler) createDiretor(c *gin.Context) {
 }
 
 type getAllDirectorsResponce struct {
-	Data []app.DirectorList `json:"data"`
+	Directors []app.DirectorsList `json:"directors"`
 }
 
 func (h *Handler) getAllDiretors(c *gin.Context) {
-	directors, err := h.services.DirectorList.GetAll()
+	directors, err := h.services.DirectorsList.GetAll()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.JSON(http.StatusOK, getAllDirectorsResponce{
-		Data: directors,
+		Directors: directors,
 	})
 }
 
@@ -54,7 +49,7 @@ func (h *Handler) getDiretorById(c *gin.Context) {
 		return
 	}
 
-	director, err := h.services.DirectorList.GetById(id)
+	director, err := h.services.DirectorsList.GetById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -76,7 +71,7 @@ func (h *Handler) updateDiretor(c *gin.Context) {
 		return
 	}
 
-	if err := h.services.DirectorList.Update(id, input); err != nil {
+	if err := h.services.DirectorsList.Update(id, input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -93,7 +88,7 @@ func (h *Handler) deleteDiretor(c *gin.Context) {
 		return
 	}
 
-	if err = h.services.DirectorList.Delete(id); err != nil {
+	if err = h.services.DirectorsList.Delete(id); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -104,21 +99,104 @@ func (h *Handler) deleteDiretor(c *gin.Context) {
 }
 
 func (h *Handler) createFilm(c *gin.Context) {
-	
+	var input app.FilmsList
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := h.validFilm(input); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	id, err := h.services.FilmsList.Create(input)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"id": id,
+	})
+}
+
+func (h *Handler) validFilm(input app.FilmsList) error {
+	_, err := h.services.DirectorsList.GetById(input.DirectorId)
+	if err != nil {
+		return errors.New("director not found")
+	}
+	return nil
+}
+
+type getAllFilmsResponce struct {
+	Films []app.FilmsList `json:"films"`
 }
 
 func (h *Handler) getAllFilms(c *gin.Context) {
-	
+	films, err := h.services.FilmsList.GetAll()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllFilmsResponce{
+		Films: films,
+	})
 }
 
 func (h *Handler) getFilmById(c *gin.Context) {
-	
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	film, err := h.services.FilmsList.GetById(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, film)
 }
 
 func (h *Handler) updateFilm(c *gin.Context) {
-	
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	var input app.UpdateFilmInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err := h.services.FilmsList.Update(id, input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
 }
 
 func (h *Handler) deleteFilm(c *gin.Context) {
-	
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
+		return
+	}
+
+	if err = h.services.FilmsList.Delete(id); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
 }
