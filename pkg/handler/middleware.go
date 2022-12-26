@@ -1,43 +1,58 @@
 package handler
 
 import (
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	"errors"
+	"github.com/gin-gonic/gin"
+	"net/http"
 	"os"
 	"strings"
-	"net/http"
-	"github.com/gin-gonic/gin"
-	"errors"
 )
 
 const (
 	authorizationHeader = "Authorization"
-	userCtx = "userId"
+	userCtx             = "userId"
 )
 
 func (h *Handler) adminIdentity(c *gin.Context) {
-	userId, adminLogin, err := h.parseAuthHeader(c)
+	userID, _, err := h.parseAuthHeader(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+
 		return
 	}
-	if strings.Compare(adminLogin, os.Getenv("ADMIN_LOGIN")) != 0 {
+	login, err := h.services.Authorization.GetLoginByID(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+
+		return
+	}
+	if strings.Compare(login, os.Getenv("ADMIN_LOGIN")) != 0 {
 		newErrorResponse(c, http.StatusUnauthorized, "only admin have access")
+
 		return
 	}
-	c.Set(userCtx, userId)
+	c.Set(userCtx, userID)
 }
 
 func (h *Handler) userIdentity(c *gin.Context) {
-	userId, userLogin, err := h.parseAuthHeader(c)
+	userID, _, err := h.parseAuthHeader(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
-		return 
-	}
-	if strings.Compare(userLogin, os.Getenv("ADMIN_LOGIN")) == 0 {
-		newErrorResponse(c, http.StatusUnauthorized, "only users have access")
+
 		return
 	}
-	c.Set(userCtx, userId)
+	login, err := h.services.Authorization.GetLoginByID(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+
+		return
+	}
+	if strings.Compare(login, os.Getenv("ADMIN_LOGIN")) == 0 {
+		newErrorResponse(c, http.StatusUnauthorized, "only users have access")
+
+		return
+	}
+	c.Set(userCtx, userID)
 }
 
 func (h *Handler) parseAuthHeader(c *gin.Context) (int, string, error) {
@@ -58,25 +73,20 @@ func (h *Handler) parseAuthHeader(c *gin.Context) (int, string, error) {
 	return h.services.Authorization.ParseToken(headerParts[1])
 }
 
-func (h *Handler) getUserById(c *gin.Context) (app.User, error) {
-	var user app.User
-	
+func getUserID(c *gin.Context) (int, error) {
 	id, ok := c.Get(userCtx)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "user id not found")
-		return user, errors.New("user id not found")
+
+		return 0, errors.New("user id not found")
 	}
 
 	idInt, ok := id.(int)
 	if !ok {
 		newErrorResponse(c, http.StatusInternalServerError, "user id is invalid type")
-		return user, errors.New("user id not found")
+
+		return 0, errors.New("user id not found")
 	}
 
-	user, err := h.services.Authorization.GetUserById(idInt)
-	if err != nil {
-		return user, err
-	}
-
-	return user, nil
+	return idInt, nil
 }

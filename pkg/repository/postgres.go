@@ -6,20 +6,20 @@ import (
 )
 
 const (
-	usersTable      = "users"
+	usersTable     = "users"
 	directorTable  = "director"
-	filmTable = "film"
-	favouriteTable  = "favourite"
-	wishListsTable = "wishlist"
+	filmTable      = "film"
+	favouriteTable = "favourite"
+	wishTable      = "wishlist"
 )
 
 type Config struct {
-	Host string
-	Port string
+	Host     string
+	Port     string
 	Username string
 	Password string
-	DBName string
-	SSLMode string
+	DBName   string
+	SSLMode  string
 }
 
 func NewPostgresDB(cfg Config) (*sqlx.DB, error) {

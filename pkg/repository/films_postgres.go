@@ -2,10 +2,10 @@ package repository
 
 import (
 	"fmt"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/jmoiron/sqlx"
-	"strings"
 	"github.com/sirupsen/logrus"
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	"strings"
 )
 
 type FilmsPostgres struct {
@@ -21,17 +21,20 @@ func (r *FilmsPostgres) Create(film app.FilmsList) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	
-	var filmId int
+
+	var filmID int
 	filmQuery := fmt.Sprintf("INSERT INTO %s (name, genre, director_id, rate, year, minutes) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id", filmTable)
-	row := tx.QueryRow(filmQuery, film.Name, film.Genre, film.DirectorId, film.Rate, film.Year, film.Minutes)
-	err = row.Scan(&filmId)
+	row := tx.QueryRow(filmQuery, film.Name, film.Genre, film.DirectorID, fmt.Sprintf("%.1f", film.Rate), film.Year, film.Minutes)
+	err = row.Scan(&filmID)
 	if err != nil {
-		tx.Rollback()
+		if rb := tx.Rollback(); rb != nil {
+			return 0, err
+		}
+
 		return 0, err
 	}
 
-	return filmId, tx.Commit()
+	return filmID, tx.Commit()
 }
 
 func (r *FilmsPostgres) GetAll() ([]app.FilmsList, error) {
@@ -42,71 +45,127 @@ func (r *FilmsPostgres) GetAll() ([]app.FilmsList, error) {
 	return films, err
 }
 
-func (r *FilmsPostgres) GetById(filmId int) (app.FilmsList, error) {
-	var films app.FilmsList
-	query := fmt.Sprintf("SELECT id, name, genre, director_id, rate, year, minutes FROM %s WHERE id = $1", filmTable)
-	err := r.db.Get(&films, query, filmId)
+func (r *FilmsPostgres) GetAllFilterFilms(input app.FiltersFilmsInput) ([]app.FilmsList, error) {
+	var films []app.FilmsList
+
+	whereValue := make([]string, 0)
+	orderByValue := make([]string, 0)
+	args := make([]interface{}, 0)
+	argID := 1
+
+	var queryFilter, querySort, limit string
+
+	if input.Genre != nil {
+		whereValue = append(whereValue, fmt.Sprintf("genre=$%d", argID))
+		args = append(args, *input.Genre)
+		argID++
+	}
+
+	if input.MinRate != nil {
+		whereValue = append(whereValue, fmt.Sprintf("rate >= $%d", argID))
+		args = append(args, *input.MinRate)
+		argID++
+	}
+
+	if input.SortRate != nil {
+		orderByValue = append(orderByValue, "rate")
+	}
+
+	if input.SortYear != nil {
+		orderByValue = append(orderByValue, "year")
+	}
+
+	if input.SortTime != nil {
+		orderByValue = append(orderByValue, "minutes")
+	}
+
+	if input.Count != nil {
+		limit = fmt.Sprintf("LIMIT $%d", argID)
+		args = append(args, *input.Count)
+	}
+
+	whereQuery := strings.Join(whereValue, ", ")
+	if len(whereQuery) != 0 {
+		queryFilter = fmt.Sprintf("WHERE %s", whereQuery)
+	}
+
+	orderByQuery := strings.Join(orderByValue, ", ")
+	if len(orderByQuery) != 0 {
+		querySort = fmt.Sprintf("ORDER BY %s", orderByQuery)
+	}
+
+	query := fmt.Sprintf("SELECT id, name, genre, director_id, rate, year, minutes FROM %s %s %s %s", filmTable, queryFilter, querySort, limit)
+	err := r.db.Select(&films, query, args...)
 
 	return films, err
 }
 
-func (r *FilmsPostgres) Update(filmId int, input app.UpdateFilmInput) error {
+func (r *FilmsPostgres) GetByID(filmID int) (app.FilmsList, error) {
+	var films app.FilmsList
+	query := fmt.Sprintf("SELECT id, name, genre, director_id, rate, year, minutes FROM %s WHERE id = $1", filmTable)
+	err := r.db.Get(&films, query, filmID)
+
+	return films, err
+}
+
+func (r *FilmsPostgres) Update(filmID int, input app.UpdateFilmInput) error {
 	setValue := make([]string, 0)
 	args := make([]interface{}, 0)
-	argId := 1
+	argID := 1
 
 	if input.Name != nil {
-		setValue = append(setValue, fmt.Sprintf("name=$%d", argId))
+		setValue = append(setValue, fmt.Sprintf("name=$%d", argID))
 		args = append(args, *input.Name)
-		argId++
+		argID++
 	}
 
 	if input.Genre != nil {
-		setValue = append(setValue, fmt.Sprintf("genre=$%d", argId))
+		setValue = append(setValue, fmt.Sprintf("genre=$%d", argID))
 		args = append(args, *input.Genre)
-		argId++
+		argID++
 	}
 
-	if input.DirectorId != nil {
-		setValue = append(setValue, fmt.Sprintf("director_id=$%d", argId))
-		args = append(args, *input.DirectorId)
-		argId++
+	if input.DirectorID != nil {
+		setValue = append(setValue, fmt.Sprintf("director_id=$%d", argID))
+		args = append(args, *input.DirectorID)
+		argID++
 	}
 
 	if input.Rate != nil {
-		setValue = append(setValue, fmt.Sprintf("rate=$%d", argId))
+		setValue = append(setValue, fmt.Sprintf("rate=$%d", argID))
 		args = append(args, *input.Rate)
-		argId++
+		argID++
 	}
 
 	if input.Year != nil {
-		setValue = append(setValue, fmt.Sprintf("year=$%d", argId))
+		setValue = append(setValue, fmt.Sprintf("year=$%d", argID))
 		args = append(args, *input.Year)
-		argId++
+		argID++
 	}
 
 	if input.Minutes != nil {
-		setValue = append(setValue, fmt.Sprintf("minutes=$%d", argId))
+		setValue = append(setValue, fmt.Sprintf("minutes=$%d", argID))
 		args = append(args, *input.Minutes)
-		argId++
+		argID++
 	}
 
 	setQuery := strings.Join(setValue, ", ")
 
-	query := fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d", filmTable, setQuery, argId)
+	query := fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d", filmTable, setQuery, argID)
 
-	args = append(args, filmId)
+	args = append(args, filmID)
 
 	logrus.Debugf("updateQuery: %s", query)
 	logrus.Debugf("args: %s", args)
 
 	_, err := r.db.Exec(query, args...)
+
 	return err
 }
 
-func (r *FilmsPostgres) Delete(filmId int) error {
+func (r *FilmsPostgres) Delete(filmID int) error {
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", filmTable)
-	_, err := r.db.Exec(query, filmId)
+	_, err := r.db.Exec(query, filmID)
 
 	return err
 }

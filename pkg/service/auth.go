@@ -1,26 +1,25 @@
 package service
 
 import (
+	"crypto/sha1"
+	"errors"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 	"time"
-	"fmt"
-	"crypto/sha1"
-	"github.com/dgrijalva/jwt-go"
-	"errors"
 )
 
 const (
 	tokenTTLup = 10 * time.Minute
-	tokenTTLdown = 1 * time.Second
 	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
-	salt = "hjqrhjqw124617ajfhajs"
+	salt       = "hjqrhjqw124617ajfhajs"
 )
 
 type tokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"user_id"`
-	UserLogin string `json:"login"`
+	UserID  int    `json:"user_id"`
+	UserAge string `json:"age"`
 }
 
 type AuthService struct {
@@ -33,24 +32,31 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 
 func (s *AuthService) CreateAdmin(admin app.User) (int, error) {
 	admin.Password = generatePasswordHash(admin.Password)
-	
+
 	return s.repo.CreateAdmin(admin)
 }
 
 func (s *AuthService) CreateUser(user app.User) (int, error) {
 	user.Password = generatePasswordHash(user.Password)
-	
+
 	return s.repo.CreateUser(user)
 }
 
-func (s *AuthService) GetUserById(id int) (app.User, error) {
-	return s.repo.GetUserById(id)
+func (s *AuthService) GetLoginByID(id int) (string, error) {
+	return s.repo.GetLoginByID(id)
 }
 
-func (s *AuthService) DeleteUser(user app.User) (int, error) {
-	user.Password = generatePasswordHash(user.Password)
+func (s *AuthService) DeleteUser(id int) error {
+	return s.repo.DeleteUser(id)
+}
 
-	return s.repo.DeleteUser(user)
+func (s *AuthService) GetUser(login, password string) error {
+	_, err := s.repo.GetUser(login, generatePasswordHash(password))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *AuthService) GenerateToken(login, password string) (string, error) {
@@ -61,11 +67,11 @@ func (s *AuthService) GenerateToken(login, password string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		StandardClaims: jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(tokenTTLup).Unix(),
-		IssuedAt: time.Now().Unix(),
+			ExpiresAt: time.Now().Add(tokenTTLup).Unix(),
+			IssuedAt:  time.Now().Unix(),
 		},
-		UserId: user.Id,
-		UserLogin: user.Login,
+		UserID:  user.ID,
+		UserAge: user.Age,
 	})
 
 	return token.SignedString([]byte(signingKey))
@@ -76,6 +82,7 @@ func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
+
 		return []byte(signingKey), nil
 	})
 	if err != nil {
@@ -85,8 +92,8 @@ func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
 	if !ok {
 		return 0, "", errors.New("token claims are not of type *tokenClaims")
 	}
-	
-	return claims.UserId, claims.UserLogin, nil
+
+	return claims.UserID, claims.UserAge, nil
 }
 
 func generatePasswordHash(password string) string {

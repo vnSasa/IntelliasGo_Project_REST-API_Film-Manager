@@ -21,17 +21,18 @@ func (s *DirectorService) GetAll() ([]app.DirectorsList, error) {
 	return s.repo.GetAll()
 }
 
-func (s *DirectorService) GetById(directorId int) (app.DirectorsList, error) {
-	return s.repo.GetById(directorId)
+func (s *DirectorService) GetByID(directorID int) (app.DirectorsList, error) {
+	return s.repo.GetByID(directorID)
 }
 
-func (s *DirectorService) Update(directorId int, input app.UpdateDirectorInput) error {
+func (s *DirectorService) Update(directorID int, input app.UpdateDirectorInput) error {
 	if err := input.Validate(); err != nil {
 		return err
 	}
-	return s.repo.Update(directorId, input)
+
+	return s.repo.Update(directorID, input)
 }
 
-func (s *DirectorService) Delete(directorId int) error {
-	return s.repo.Delete(directorId)
+func (s *DirectorService) Delete(directorID int) error {
+	return s.repo.Delete(directorID)
 }

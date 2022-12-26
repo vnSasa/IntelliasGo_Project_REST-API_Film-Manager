@@ -8,8 +8,9 @@ import (
 type Authorization interface {
 	CreateAdmin(admin app.User) (int, error)
 	CreateUser(user app.User) (int, error)
-	GetUserById(id int) (app.User, error)
-	DeleteUser(user app.User) (int, error)
+	GetLoginByID(id int) (string, error)
+	GetUser(login, password string) error
+	DeleteUser(id int) error
 	GenerateToken(login, password string) (string, error)
 	ParseToken(token string) (int, string, error)
 }
@@ -17,25 +18,30 @@ type Authorization interface {
 type DirectorsList interface {
 	Create(director app.DirectorsList) (int, error)
 	GetAll() ([]app.DirectorsList, error)
-	GetById(directorId int) (app.DirectorsList, error)
-	Update(directorId int, input app.UpdateDirectorInput) error
-	Delete(directorId int) error
+	GetByID(directorID int) (app.DirectorsList, error)
+	Update(directorID int, input app.UpdateDirectorInput) error
+	Delete(directorID int) error
 }
 
 type FilmsList interface {
 	Create(film app.FilmsList) (int, error)
 	GetAll() ([]app.FilmsList, error)
-	GetById(filmId int) (app.FilmsList, error)
-	Update(filmId int, input app.UpdateFilmInput) error
-	Delete(filmId int) error
+	GetAllFilterFilms(input app.FiltersFilmsInput) ([]app.FilmsList, error)
+	GetByID(filmID int) (app.FilmsList, error)
+	Update(filmID int, input app.UpdateFilmInput) error
+	Delete(filmID int) error
 }
 
 type FavouriteFilms interface {
-
+	AddFavouriteFilm(userID, filmID int) (int, error)
+	GetAllFavouriteFilms(userID int) ([]app.FilmsList, error)
+	Delete(userID, id int) error
 }
 
 type WishFilms interface {
-
+	AddWishFilm(userID, filmID int) (int, error)
+	GetAllWishFilms(userID int) ([]app.FilmsList, error)
+	Delete(userID, id int) error
 }
 
 type Service struct {
@@ -48,8 +54,10 @@ type Service struct {
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repos.Authorization),
-		DirectorsList: NewDirectorService(repos.DirectorsList),
-		FilmsList: NewFilmsService(repos.FilmsList),
+		Authorization:  NewAuthService(repos.Authorization),
+		DirectorsList:  NewDirectorService(repos.DirectorsList),
+		FilmsList:      NewFilmsService(repos.FilmsList),
+		FavouriteFilms: NewFavouriteFilmsService(repos.FavouriteFilms),
+		WishFilms:      NewWishFilmsService(repos.WishFilms),
 	}
 }

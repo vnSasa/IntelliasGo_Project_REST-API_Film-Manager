@@ -19,9 +19,9 @@ CREATE TABLE film
     name varchar(255) not null unique,
     genre varchar(255) not null,
     director_id int references director (id) on delete cascade not null,
-    rate varchar(255) not null,
-    year varchar(255) not null,
-    minutes varchar(255) not null
+    rate float(5) not null,
+    year int not null,
+    minutes float(5) not null
 );
 
 CREATE TABLE favourite

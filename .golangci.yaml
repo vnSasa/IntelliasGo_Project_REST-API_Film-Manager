@@ -1,0 +1,46 @@
+linters-settings:
+  gofumpt:
+    extra-rules: false
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - exhaustive
+    - funlen
+    - gochecknoinits
+    - goconst
+    - gocyclo
+    - gofmt
+    # - goimports
+    - revive
+    - gomnd
+    - goprintffuncname
+    # - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    # - rowserrcheck
+    - prealloc
+    - exportloopref
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - nlreturn
+    - whitespace
+    - gocritic
+    - exportloopref
+    - gocognit
+    - gofumpt
+    - godot

@@ -21,14 +21,18 @@ func (s *FilmsService) GetAll() ([]app.FilmsList, error) {
 	return s.repo.GetAll()
 }
 
-func (s *FilmsService) GetById(filmId int) (app.FilmsList, error) {
-	return s.repo.GetById(filmId)
+func (s *FilmsService) GetAllFilterFilms(input app.FiltersFilmsInput) ([]app.FilmsList, error) {
+	return s.repo.GetAllFilterFilms(input)
 }
 
-func (s *FilmsService) Update(filmId int, input app.UpdateFilmInput) error {
-	return s.repo.Update(filmId, input)
+func (s *FilmsService) GetByID(filmID int) (app.FilmsList, error) {
+	return s.repo.GetByID(filmID)
 }
 
-func (s *FilmsService) Delete(filmId int) error {
-	return s.repo.Delete(filmId)
+func (s *FilmsService) Update(filmID int, input app.UpdateFilmInput) error {
+	return s.repo.Update(filmID, input)
+}
+
+func (s *FilmsService) Delete(filmID int) error {
+	return s.repo.Delete(filmID)
 }
