@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 )
 
 type Authorization interface {

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 )
 

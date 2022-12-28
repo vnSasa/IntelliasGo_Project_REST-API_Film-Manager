@@ -1,13 +1,14 @@
 package service
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 )
 
 const (
@@ -97,7 +98,7 @@ func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
 }
 
 func generatePasswordHash(password string) string {
-	hash := sha1.New()
+	hash := sha256.New()
 	hash.Write([]byte(password))
 
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))

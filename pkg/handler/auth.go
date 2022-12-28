@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 )
 
 func (h *Handler) InitAdmin(c *gin.Context) {

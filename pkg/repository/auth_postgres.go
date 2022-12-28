@@ -3,10 +3,11 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"strconv"
 	"strings"
+
+	"github.com/jmoiron/sqlx"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 )
 
 type AuthPostgres struct {

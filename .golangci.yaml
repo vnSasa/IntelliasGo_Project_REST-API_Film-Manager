@@ -1,6 +1,7 @@
 linters-settings:
-  gofumpt:
-    extra-rules: false
+  funlen:
+    lines: 100
+    statements: 50
 
 linters:
   disable-all: true
@@ -16,11 +17,11 @@ linters:
     - goconst
     - gocyclo
     - gofmt
-    # - goimports
+    - goimports
     - revive
     - gomnd
     - goprintffuncname
-    # - gosec
+    - gosec
     - gosimple
     - govet
     - ineffassign
@@ -28,7 +29,7 @@ linters:
     - nakedret
     - noctx
     - nolintlint
-    # - rowserrcheck
+    # - rowserrcheck //rowserrcheck is disabled because of generics
     - prealloc
     - exportloopref
     - staticcheck

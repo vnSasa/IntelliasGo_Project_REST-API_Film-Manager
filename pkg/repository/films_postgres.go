@@ -2,10 +2,11 @@ package repository
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
-	"strings"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 )
 
 type FilmsPostgres struct {

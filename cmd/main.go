@@ -1,17 +1,18 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/handler"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/service"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
