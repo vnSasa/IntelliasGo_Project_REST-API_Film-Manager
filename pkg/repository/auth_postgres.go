@@ -78,11 +78,3 @@ func (r *AuthPostgres) GetUser(login, password string) (app.User, error) {
 
 	return user, err
 }
-
-func (r *AuthPostgres) GetLoginByID(id int) (string, error) {
-	var login string
-	query := fmt.Sprintf("SELECT login FROM %s WHERE id=$1", usersTable)
-	err := r.db.Get(&login, query, id)
-
-	return login, err
-}
