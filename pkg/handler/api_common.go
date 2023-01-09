@@ -63,6 +63,27 @@ func (h *Handler) getAllFilms(c *gin.Context) {
 	})
 }
 
+// GET ALL FILMS BY FILTERS...
+func (h *Handler) getFilmsFilters(c *gin.Context) {
+	var input app.FiltersFilmsInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	films, err := h.services.FilmsList.GetAllFilterFilms(input)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllFilmsResponce{
+		Films: films,
+	})
+}
+
 // GET FILM BY ID...
 func (h *Handler) getFilmByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

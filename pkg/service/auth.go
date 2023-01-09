@@ -5,7 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"strings"
+	"os"
 
+	"github.com/twinj/uuid"
 	"github.com/dgrijalva/jwt-go"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
@@ -16,12 +19,6 @@ const (
 	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
 	salt       = "hjqrhjqw124617ajfhajs"
 )
-
-type tokenClaims struct {
-	jwt.StandardClaims
-	UserID  int    `json:"user_id"`
-	UserAge string `json:"age"`
-}
 
 type AuthService struct {
 	repo repository.Authorization
@@ -60,26 +57,48 @@ func (s *AuthService) GetUser(login, password string) error {
 	return nil
 }
 
-func (s *AuthService) GenerateToken(login, password string) (string, error) {
+func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, error) {
 	user, err := s.repo.GetUser(login, generatePasswordHash(password))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
+	var (
+		isAdmin = false
+		isUser = true
+	)
+
+	if strings.Compare(login, os.Getenv("ADMIN_LOGIN")) == 0 {
+		isAdmin = true
+		isUser = false
+	}
+
+	td := &app.TokenDetails{}
+	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
+	td.AccessUuid = uuid.NewV4().String()
+
+	
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.TokenClaims{
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTLup).Unix(),
-			IssuedAt:  time.Now().Unix(),
+			ExpiresAt: td.AtExpires,
 		},
 		UserID:  user.ID,
-		UserAge: user.Age,
+		AtUuid: td.AccessUuid,
+		IsAdmin: isAdmin,
+		IsUser: isUser,
 	})
 
-	return token.SignedString([]byte(signingKey))
+	td.AccessToken, err = token.SignedString([]byte(signingKey))
+	if err != nil {
+		return nil, err
+	}
+
+	return td, nil
 }
 
-func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (s *AuthService) ParseToken(accessToken string) (*app.TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &app.TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
@@ -87,14 +106,14 @@ func (s *AuthService) ParseToken(accessToken string) (int, string, error) {
 		return []byte(signingKey), nil
 	})
 	if err != nil {
-		return 0, "", err
+		return nil, err
 	}
-	claims, ok := token.Claims.(*tokenClaims)
+	claims, ok := token.Claims.(*app.TokenClaims)
 	if !ok {
-		return 0, "", errors.New("token claims are not of type *tokenClaims")
+		return nil, errors.New("token claims are not of type *tokenClaims")
 	}
 
-	return claims.UserID, claims.UserAge, nil
+	return claims, nil
 }
 
 func generatePasswordHash(password string) string {

@@ -5,29 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 )
-
-// GET ALL FILMS BY FILTERS...
-func (h *Handler) getFilmsFilters(c *gin.Context) {
-	var input app.FiltersFilmsInput
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-
-		return
-	}
-
-	films, err := h.services.FilmsList.GetAllFilterFilms(input)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-		return
-	}
-
-	c.JSON(http.StatusOK, getAllFilmsResponce{
-		Films: films,
-	})
-}
 
 // ADD FAVOURITE FILM...
 func (h *Handler) addFavouriteFilm(c *gin.Context) {

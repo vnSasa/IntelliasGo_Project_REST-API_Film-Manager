@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
 	"errors"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -14,61 +14,65 @@ const (
 	userCtx             = "userId"
 )
 
+var (
+	red = app.GetRedisConn()
+)
+
 func (h *Handler) adminIdentity(c *gin.Context) {
-	userID, _, err := h.parseAuthHeader(c)
+	claims, err := h.parseAuthHeader(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 
 		return
 	}
-	login, err := h.services.Authorization.GetLoginByID(userID)
+	_, err = red.Get(c, claims.AtUuid).Result()
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	if strings.Compare(login, os.Getenv("ADMIN_LOGIN")) != 0 {
+	if claims.IsAdmin != true {
 		newErrorResponse(c, http.StatusUnauthorized, "only admin have access")
 
 		return
 	}
-	c.Set(userCtx, userID)
+	c.Set(userCtx, claims.UserID)
 }
 
 func (h *Handler) userIdentity(c *gin.Context) {
-	userID, _, err := h.parseAuthHeader(c)
+	claims, err := h.parseAuthHeader(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 
 		return
 	}
-	login, err := h.services.Authorization.GetLoginByID(userID)
+	_, err = red.Get(c, claims.AtUuid).Result()
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	if strings.Compare(login, os.Getenv("ADMIN_LOGIN")) == 0 {
+	if claims.IsUser != true {
 		newErrorResponse(c, http.StatusUnauthorized, "only users have access")
 
 		return
 	}
-	c.Set(userCtx, userID)
+	c.Set(userCtx, claims.UserID)
 }
 
-func (h *Handler) parseAuthHeader(c *gin.Context) (int, string, error) {
+func (h *Handler) parseAuthHeader(c *gin.Context) (*app.TokenClaims, error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
-		return 0, "", errors.New("empty auth header")
+		return nil, errors.New("empty auth header")
 	}
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-		return 0, "", errors.New("invalid auth header")
+		return nil, errors.New("invalid auth header")
 	}
 
 	if len(headerParts[1]) == 0 {
-		return 0, "", errors.New("token is empty")
+		return nil, errors.New("token is empty")
 	}
 
 	return h.services.Authorization.ParseToken(headerParts[1])
