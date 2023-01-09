@@ -10,7 +10,6 @@ type Authorization interface {
 	CreateUser(user app.User) (int, error)
 	DeleteUser(id int) error
 	GetUser(login, password string) (app.User, error)
-	GetLoginByID(id int) (string, error)
 }
 
 type DirectorsList interface {

@@ -40,10 +40,6 @@ func (s *AuthService) CreateUser(user app.User) (int, error) {
 	return s.repo.CreateUser(user)
 }
 
-func (s *AuthService) GetLoginByID(id int) (string, error) {
-	return s.repo.GetLoginByID(id)
-}
-
 func (s *AuthService) DeleteUser(id int) error {
 	return s.repo.DeleteUser(id)
 }

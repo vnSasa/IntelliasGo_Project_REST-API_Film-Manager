@@ -8,7 +8,6 @@ import (
 type Authorization interface {
 	CreateAdmin(admin app.User) (int, error)
 	CreateUser(user app.User) (int, error)
-	GetLoginByID(id int) (string, error)
 	GetUser(login, password string) error
 	DeleteUser(id int) error
 	GenerateToken(login, password string) (*app.TokenDetails, error)
