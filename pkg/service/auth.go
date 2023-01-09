@@ -10,7 +10,7 @@ import (
 
 	"github.com/twinj/uuid"
 	"github.com/dgrijalva/jwt-go"
-	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 )
 

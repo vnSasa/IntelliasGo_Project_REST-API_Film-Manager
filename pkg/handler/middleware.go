@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 	"errors"
 	"net/http"
 	"strings"

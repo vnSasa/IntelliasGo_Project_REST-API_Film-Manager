@@ -6,7 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
-	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 )
 
 type DirectorPostgres struct {

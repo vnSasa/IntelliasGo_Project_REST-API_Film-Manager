@@ -7,7 +7,7 @@ import (
 	// "strings"
 
 	"github.com/gin-gonic/gin"
-	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
+	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 )
 
 func (h *Handler) InitAdmin(c *gin.Context) {
