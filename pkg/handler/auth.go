@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"time"
 	"net/http"
 	"os"
-	"strings"
+	// "strings"
 
 	"github.com/gin-gonic/gin"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager"
@@ -70,82 +71,34 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
+	red := app.GetRedisConn()
+	_, err = red.Set(c, token.AccessUuid, token.AccessToken, 60*time.Second).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"token": token,
+		"token": token.AccessToken,
 	})
 }
 
 func (h *Handler) logout(c *gin.Context) {
-	userID, userAge, err := h.parseAuthHeader(c)
+	claims, err := h.parseAuthHeader(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 
 		return
 	}
 
-	favouriteFilms, _ := h.services.FavouriteFilms.GetAllFavouriteFilms(userID)
-	wishFilms, _ := h.services.WishFilms.GetAllWishFilms(userID)
-
-	var input userDataInput
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-
-		return
-	}
-
-	if err := h.services.Authorization.GetUser(input.Login, input.Password); err != nil {
+	red := app.GetRedisConn()
+	_, err = red.Del(c, claims.AtUuid).Result()
+	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	if err := h.services.Authorization.DeleteUser(userID); err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-		return
-	}
-
-	user := app.User{
-		Login:    input.Login,
-		Password: input.Password,
-		Age:      userAge,
-	}
-
-	var id int
-	if strings.Compare(input.Login, os.Getenv("ADMIN_LOGIN")) == 0 {
-		id, err = h.services.Authorization.CreateAdmin(user)
-		if err != nil {
-			newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-			return
-		}
-	} else {
-		id, err = h.services.Authorization.CreateUser(user)
-		if err != nil {
-			newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-			return
-		}
-
-		for _, v := range favouriteFilms {
-			_, err := h.services.FavouriteFilms.AddFavouriteFilm(id, v.ID)
-			if err != nil {
-				newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-				return
-			}
-		}
-
-		for _, vv := range wishFilms {
-			_, err := h.services.WishFilms.AddWishFilm(id, vv.ID)
-			if err != nil {
-				newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-				return
-			}
-		}
-	}
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
-	})
+	c.JSON(http.StatusOK, "Logout Success")
 }
