@@ -73,8 +73,15 @@ func (h *Handler) signIn(c *gin.Context) {
 
 	red := app.GetRedisConn()
 	at := time.Unix(token.AtExpires, 0)
+	rt := time.Unix(token.RtExpires, 0)
 	now := time.Now()
 	_, err = red.Set(c, token.AccessUuid, token.AccessToken, at.Sub(now)).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	_, err = red.Set(c, token.RefreshUuid, token.RefreshToken, rt.Sub(now)).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
