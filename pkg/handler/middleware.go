@@ -60,7 +60,7 @@ func (h *Handler) userIdentity(c *gin.Context) {
 	c.Set(userCtx, claims.UserID)
 }
 
-func (h *Handler) parseAuthHeader(c *gin.Context) (*app.TokenClaims, error) {
+func (h *Handler) parseAuthHeader(c *gin.Context) (*app.AccessTokenClaims, error) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		return nil, errors.New("empty auth header")

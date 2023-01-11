@@ -11,7 +11,8 @@ type Authorization interface {
 	GetUser(login, password string) error
 	DeleteUser(id int) error
 	GenerateToken(login, password string) (*app.TokenDetails, error)
-	ParseToken(token string) (*app.TokenClaims, error)
+	RefreshAccessToken(refreshToken string) (*app.TokenDetails, error)
+	ParseToken(token string) (*app.AccessTokenClaims, error)
 }
 
 type DirectorsList interface {

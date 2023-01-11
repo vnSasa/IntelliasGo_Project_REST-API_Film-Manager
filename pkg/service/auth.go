@@ -73,9 +73,10 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
 	td.AccessUuid = uuid.NewV4().String()
 
-	
+	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
+	td.RefreshUuid = uuid.NewV4().String()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.TokenClaims{
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.AccessTokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: td.AtExpires,
 		},
@@ -85,7 +86,22 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 		IsUser: isUser,
 	})
 
-	td.AccessToken, err = token.SignedString([]byte(signingKey))
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.RefreshTokenClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: td.RtExpires,
+		},
+		UserID: user.ID,
+		RtUuid: td.RefreshUuid,
+		IsAdmin: isAdmin,
+		IsUser: isUser,
+	})
+
+	td.AccessToken, err = accessToken.SignedString([]byte(signingKey))
+	if err != nil {
+		return nil, err
+	}
+
+	td.RefreshToken, err = refreshToken.SignedString([]byte(signingKey))
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +109,8 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 	return td, nil
 }
 
-func (s *AuthService) ParseToken(accessToken string) (*app.TokenClaims, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &app.TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (s *AuthService) RefreshAccessToken(refreshToken string) (*app.TokenDetails, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &app.RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")
 		}
@@ -104,7 +120,46 @@ func (s *AuthService) ParseToken(accessToken string) (*app.TokenClaims, error) {
 	if err != nil {
 		return nil, err
 	}
-	claims, ok := token.Claims.(*app.TokenClaims)
+	refreshClaims, ok := token.Claims.(*app.RefreshTokenClaims)
+	if !ok {
+		return nil, errors.New("refresh token claims are not of type *RefreshTokenClaims")
+	}
+	td := &app.TokenDetails{}
+	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
+	td.AccessUuid = uuid.NewV4().String()
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.AccessTokenClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: td.AtExpires,
+		},
+		UserID: refreshClaims.UserID,
+		AtUuid: td.AccessUuid,
+		IsAdmin: refreshClaims.IsAdmin,
+		IsUser: refreshClaims.IsUser,
+	})
+
+	td.AccessToken, err = accessToken.SignedString([]byte(signingKey))
+	if err != nil {
+		return nil, err
+	}
+
+	td.RefreshToken = refreshToken
+
+	return td, nil
+}
+
+func (s *AuthService) ParseToken(accessToken string) (*app.AccessTokenClaims, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &app.AccessTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+
+		return []byte(signingKey), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*app.AccessTokenClaims)
 	if !ok {
 		return nil, errors.New("token claims are not of type *tokenClaims")
 	}
