@@ -72,7 +72,9 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 
 	red := app.GetRedisConn()
-	_, err = red.Set(c, token.AccessUuid, token.AccessToken, 60*time.Second).Result()
+	at := time.Unix(token.AtExpires, 0)
+	now := time.Now()
+	_, err = red.Set(c, token.AccessUuid, token.AccessToken, at.Sub(now)).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
@@ -80,7 +82,43 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"token": token.AccessToken,
+		"accsess_token": token.AccessToken,
+		"refresh_token": token.RefreshToken,
+	})
+}
+
+type refreshDataInput struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (h *Handler) refreshSignIn(c *gin.Context) {
+	var input refreshDataInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	token, err := h.services.Authorization.RefreshAccessToken(input.RefreshToken)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	red := app.GetRedisConn()
+	at := time.Unix(token.AtExpires, 0)
+	now := time.Now()
+	_, err = red.Set(c, token.AccessUuid, token.AccessToken, at.Sub(now)).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"accsess_token": token.AccessToken,
+		"refresh_token": token.RefreshToken,
 	})
 }
 
