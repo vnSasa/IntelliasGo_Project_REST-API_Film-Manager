@@ -14,10 +14,6 @@ const (
 	userCtx             = "userId"
 )
 
-var (
-	red = app.GetRedisConn()
-)
-
 func (h *Handler) adminIdentity(c *gin.Context) {
 	claims, err := h.parseAuthHeader(c)
 	if err != nil {
@@ -25,12 +21,14 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 
 		return
 	}
+	red := app.GetRedisConn()
 	_, err = red.Get(c, claims.AtUuid).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
+	red.Close()
 	if claims.IsAdmin != true {
 		newErrorResponse(c, http.StatusUnauthorized, "only admin have access")
 
@@ -46,12 +44,14 @@ func (h *Handler) userIdentity(c *gin.Context) {
 
 		return
 	}
+	red := app.GetRedisConn()
 	_, err = red.Get(c, claims.AtUuid).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
+	red.Close()
 	if claims.IsUser != true {
 		newErrorResponse(c, http.StatusUnauthorized, "only users have access")
 
