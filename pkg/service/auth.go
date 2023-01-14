@@ -82,6 +82,7 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 		},
 		UserID:  user.ID,
 		AtUuid: td.AccessUuid,
+		RtUuid: td.RefreshUuid,
 		IsAdmin: isAdmin,
 		IsUser: isUser,
 	})
@@ -92,8 +93,10 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 		},
 		UserID: user.ID,
 		RtUuid: td.RefreshUuid,
+		AtUuid: td.AccessUuid,
 		IsAdmin: isAdmin,
 		IsUser: isUser,
+		IsRefresh: true,
 	})
 
 	td.AccessToken, err = accessToken.SignedString([]byte(signingKey))
@@ -109,41 +112,44 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 	return td, nil
 }
 
-func (s *AuthService) RefreshAccessToken(refreshToken string) (*app.TokenDetails, error) {
-	token, err := jwt.ParseWithClaims(refreshToken, &app.RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
-		}
-
-		return []byte(signingKey), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	refreshClaims, ok := token.Claims.(*app.RefreshTokenClaims)
-	if !ok {
-		return nil, errors.New("refresh token claims are not of type *RefreshTokenClaims")
-	}
+func (s *AuthService) RefreshToken(refreshData *app.RefreshTokenClaims) (*app.TokenDetails, error) {
 	td := &app.TokenDetails{}
 	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
 	td.AccessUuid = uuid.NewV4().String()
+
+	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
+	td.RefreshUuid = uuid.NewV4().String()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.AccessTokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: td.AtExpires,
 		},
-		UserID: refreshClaims.UserID,
+		UserID: refreshData.UserID,
 		AtUuid: td.AccessUuid,
-		IsAdmin: refreshClaims.IsAdmin,
-		IsUser: refreshClaims.IsUser,
+		RtUuid: td.RefreshUuid,
+		IsAdmin: refreshData.IsAdmin,
+		IsUser: refreshData.IsUser,
 	})
-
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.RefreshTokenClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: td.RtExpires,
+		},
+		UserID: refreshData.UserID,
+		RtUuid: td.RefreshUuid,
+		AtUuid: td.AccessUuid,
+		IsAdmin: refreshData.IsAdmin,
+		IsUser: refreshData.IsUser,
+		IsRefresh: true,
+	})
+	var err error
 	td.AccessToken, err = accessToken.SignedString([]byte(signingKey))
 	if err != nil {
 		return nil, err
 	}
-
-	td.RefreshToken = refreshToken
+	td.RefreshToken, err = refreshToken.SignedString([]byte(signingKey))
+	if err != nil {
+		return nil, err
+	}
 
 	return td, nil
 }
@@ -160,6 +166,25 @@ func (s *AuthService) ParseToken(accessToken string) (*app.AccessTokenClaims, er
 		return nil, err
 	}
 	claims, ok := token.Claims.(*app.AccessTokenClaims)
+	if !ok {
+		return nil, errors.New("token claims are not of type *tokenClaims")
+	}
+
+	return claims, nil
+}
+
+func (s *AuthService) ParseRefreshToken(refreshToken string) (*app.RefreshTokenClaims, error) {
+	token, err := jwt.ParseWithClaims(refreshToken, &app.RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+
+		return []byte(signingKey), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*app.RefreshTokenClaims)
 	if !ok {
 		return nil, errors.New("token claims are not of type *tokenClaims")
 	}

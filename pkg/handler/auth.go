@@ -87,6 +87,7 @@ func (h *Handler) signIn(c *gin.Context) {
 
 		return
 	}
+	red.Close()
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"accsess_token": token.AccessToken,
@@ -106,15 +107,48 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 		return
 	}
 
-	token, err := h.services.Authorization.RefreshAccessToken(input.RefreshToken)
+	RtData, err := h.services.Authorization.ParseRefreshToken(input.RefreshToken)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
+	if RtData.IsRefresh != true {
+		newErrorResponse(c, http.StatusInternalServerError, "is not refresh token")
+
+		return
+	}
+
+	token, err := h.services.Authorization.RefreshToken(RtData)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	
 	red := app.GetRedisConn()
+	_, err = red.Get(c, RtData.RtUuid).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	_, err = red.Del(c, RtData.RtUuid).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	_, err = red.Del(c, RtData.AtUuid).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	
 	at := time.Unix(token.AtExpires, 0)
+	rt := time.Unix(token.RtExpires, 0)
 	now := time.Now()
 	_, err = red.Set(c, token.AccessUuid, token.AccessToken, at.Sub(now)).Result()
 	if err != nil {
@@ -122,17 +156,35 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 
 		return
 	}
+	_, err = red.Set(c, token.RefreshUuid, token.RefreshToken, rt.Sub(now)).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	red.Close()
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"accsess_token": token.AccessToken,
+		"access_token": token.AccessToken,
 		"refresh_token": token.RefreshToken,
 	})
 }
 
+type logoutDataInput struct {
+	AccessToken string `json:"access_token"`
+}
+
 func (h *Handler) logout(c *gin.Context) {
-	claims, err := h.parseAuthHeader(c)
+	var input logoutDataInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	claims, err := h.services.Authorization.ParseToken(input.AccessToken)
 	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
@@ -144,6 +196,13 @@ func (h *Handler) logout(c *gin.Context) {
 
 		return
 	}
+	_, err = red.Del(c, claims.RtUuid).Result()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+	red.Close()
 
 	c.JSON(http.StatusOK, "Logout Success")
 }
