@@ -43,6 +43,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 			films.GET("/:id", h.getFilmByID)
 			films.PUT("/:id", h.updateFilm)
 			films.DELETE("/:id", h.deleteFilm)
+			films.POST("/import", h.exportFilmstoCSV)
 		}
 	}
 
@@ -52,12 +53,14 @@ func (h *Handler) InitRoute() *gin.Engine {
 		{
 			films.GET("/all", h.getFilmsFilters)
 			films.GET("/:id", h.getFilmByID)
+			films.POST("/export", h.exportFilmstoCSV)
 
 			favourite := films.Group("/favourite")
 			{
 				favourite.POST("/:id/add", h.addFavouriteFilm)
 				favourite.GET("/all", h.getAllFavouriteFilms)
 				favourite.DELETE("/:id", h.deleteFavourite)
+				favourite.POST("/export", h.exportFtoCSV)
 			}
 
 			wish := films.Group("/wish")
@@ -65,6 +68,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 				wish.POST("/:id/add", h.addWishFilm)
 				wish.GET("/all", h.getAllWishFilms)
 				wish.DELETE("/:id", h.deleteWish)
+				wish.POST("/export", h.exportWtoCSV)
 			}
 		}
 	}

@@ -28,7 +28,6 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 
 		return
 	}
-	red.Close()
 	if claims.IsAdmin != true {
 		newErrorResponse(c, http.StatusUnauthorized, "only admin have access")
 
@@ -51,7 +50,6 @@ func (h *Handler) userIdentity(c *gin.Context) {
 
 		return
 	}
-	red.Close()
 	if claims.IsUser != true {
 		newErrorResponse(c, http.StatusUnauthorized, "only users have access")
 
