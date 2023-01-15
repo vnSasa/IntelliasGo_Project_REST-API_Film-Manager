@@ -4,7 +4,6 @@ import (
 	"time"
 	"net/http"
 	"os"
-	// "strings"
 
 	"github.com/gin-gonic/gin"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
@@ -87,7 +86,6 @@ func (h *Handler) signIn(c *gin.Context) {
 
 		return
 	}
-	red.Close()
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"accsess_token": token.AccessToken,
@@ -162,7 +160,6 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 
 		return
 	}
-	red.Close()
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"access_token": token.AccessToken,
@@ -202,7 +199,6 @@ func (h *Handler) logout(c *gin.Context) {
 
 		return
 	}
-	red.Close()
 
 	c.JSON(http.StatusOK, "Logout Success")
 }

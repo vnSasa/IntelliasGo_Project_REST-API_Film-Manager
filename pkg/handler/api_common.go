@@ -3,6 +3,9 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"os"
+	"encoding/csv"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
@@ -101,4 +104,55 @@ func (h *Handler) getFilmByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, film)
+}
+
+// EXPORT ALL FILMS TO CSV
+func (h *Handler) exportFilmstoCSV(c *gin.Context) {
+	films, err := h.services.FilmsList.GetAll()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	csvfile, err := os.Create("films.csv")
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	write := csv.NewWriter(csvfile)
+	
+	headers := []string{"list of films"}
+	write.Write(headers)
+
+	var id, name, genre, directorID, rate, year, minutes string
+	
+	for key := range films {
+		list := make([]string, 0, 1+len(headers))
+		
+		id = fmt.Sprintf("| ID: %v", films[key].ID)
+		name = fmt.Sprintf("| NAME: %v", films[key].Name)
+		genre = fmt.Sprintf("| GENRE: %v", films[key].Genre)
+		directorID = fmt.Sprintf("| DirectorID: %v", films[key].DirectorID)
+		rate = fmt.Sprintf("| RATE: %v", films[key].Rate)
+		year = fmt.Sprintf("| YEAR: %v", films[key].Year)
+		minutes = fmt.Sprintf("| MINUTES: %v |", films[key].Minutes)
+
+		list = append(
+			list,
+			id,
+			name,
+			genre,
+			directorID,
+			rate,
+			year,
+			minutes,
+		)
+
+		write.Write(list)
+	}
+	write.Flush()
+	csvfile.Close()
 }
