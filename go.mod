@@ -58,6 +58,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golangci/check v0.0.0-20180506172741-cfe4005ccda2 // indirect
 	github.com/golangci/dupl v0.0.0-20180902072040-3e9179ac440a // indirect

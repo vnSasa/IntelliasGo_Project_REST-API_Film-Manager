@@ -3,7 +3,7 @@ package handler
 import (
 	"time"
 	"net/http"
-	"os"
+	"github.com/spf13/viper"
 
 	"github.com/gin-gonic/gin"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
@@ -11,9 +11,9 @@ import (
 
 func (h *Handler) InitAdmin(c *gin.Context) {
 	input := app.User{
-		Login:    os.Getenv("ADMIN_LOGIN"),
-		Password: os.Getenv("ADMIN_PASSWORD"),
-		Age:      os.Getenv("ADMIN_AGE"),
+		Login:    viper.GetString("admin.login"),
+		Password: viper.GetString("admin.password"),
+		Age:      viper.GetString("admin.age"),
 	}
 
 	id, err := h.services.Authorization.CreateAdmin(input)
