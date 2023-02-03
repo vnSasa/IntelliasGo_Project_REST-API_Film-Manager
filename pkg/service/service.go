@@ -5,6 +5,8 @@ import (
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 )
 
+//go:generate go run github.com/golang/mock/mockgen -package mocks -destination=mocks/mock_service.go -source=service.go
+
 type Authorization interface {
 	CreateAdmin(admin app.User) (int, error)
 	CreateUser(user app.User) (int, error)
