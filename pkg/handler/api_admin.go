@@ -10,6 +10,20 @@ import (
 )
 
 // CREATE DIRECTOR...
+
+// @Summary Create director
+// @Security ApiKeyAuth
+// @Tags director
+// @Description create director
+// @ID create-director
+// @Accept json
+// @Produce json
+// @Param input body app.DirectorsList true "director info"
+// @Success 200 {integer} integer 1
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api-admin/director/create [post]
 func (h *Handler) createDiretor(c *gin.Context) {
 	var input app.DirectorsList
 	if err := c.BindJSON(&input); err != nil {
@@ -78,6 +92,20 @@ func (h *Handler) deleteDiretor(c *gin.Context) {
 }
 
 // CREATE FILM...
+
+// @Summary Create film
+// @Security ApiKeyAuth
+// @Tags films
+// @Description create film
+// @ID create-film
+// @Accept json
+// @Produce json
+// @Param input body app.FilmsList true "film info"
+// @Success 200 {integer} integer 1
+// @Failure 400,404 {object} errorResponse
+// @Failure 500 {object} errorResponse
+// @Failure default {object} errorResponse
+// @Router /api-admin/films/create [post]
 func (h *Handler) createFilm(c *gin.Context) {
 	var input app.FilmsList
 	if err := c.BindJSON(&input); err != nil {
