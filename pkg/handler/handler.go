@@ -3,6 +3,11 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/service"
+
+	"github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	
+	_ "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/docs"
 )
 
 type Handler struct {
@@ -15,6 +20,8 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoute() *gin.Engine {
 	router := gin.New()
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.POST("/init-admin", h.InitAdmin)
 

@@ -15,6 +15,17 @@ import (
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/service"
 )
 
+// @tittle FilmsApp API
+// @version 1.0
+// @description API Server for FilmsList Application
+
+// @host localhost:8000
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 	if err := initConfig(); err != nil {
