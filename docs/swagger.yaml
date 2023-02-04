@@ -1,5 +1,41 @@
 basePath: /
 definitions:
+  app.DirectorsList:
+    properties:
+      date_of_birth:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    required:
+    - date_of_birth
+    - name
+    type: object
+  app.FilmsList:
+    properties:
+      director_id:
+        type: integer
+      genre:
+        type: string
+      id:
+        type: integer
+      minutes:
+        type: number
+      name:
+        type: string
+      rate:
+        type: number
+      year:
+        type: integer
+    required:
+    - director_id
+    - genre
+    - minutes
+    - name
+    - rate
+    - year
+    type: object
   app.User:
     properties:
       age:
@@ -44,6 +80,88 @@ info:
   description: API Server for FilmsList Application
   version: "1.0"
 paths:
+  /api-admin/director/create:
+    post:
+      consumes:
+      - application/json
+      description: create director
+      operationId: create-director
+      parameters:
+      - description: director info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.DirectorsList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create director
+      tags:
+      - director
+  /api-admin/films/create:
+    post:
+      consumes:
+      - application/json
+      description: create film
+      operationId: create-film
+      parameters:
+      - description: film info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.FilmsList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create film
+      tags:
+      - films
   /auth/logout:
     post:
       consumes:
@@ -198,6 +316,38 @@ paths:
           schema:
             $ref: '#/definitions/handler.errorResponse'
       summary: SignUp
+      tags:
+      - auth
+  /init-admin:
+    post:
+      consumes:
+      - application/json
+      description: create admin
+      operationId: create admin
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: InitAdmin
       tags:
       - auth
 securityDefinitions:
