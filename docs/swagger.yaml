@@ -36,6 +36,43 @@ definitions:
     - rate
     - year
     type: object
+  app.FiltersFilmsInput:
+    properties:
+      count:
+        type: integer
+      genre:
+        type: string
+      minimum-rate:
+        type: number
+      sort-rate:
+        type: string
+      sort-time:
+        type: string
+      sort-year:
+        type: string
+    type: object
+  app.UpdateDirectorInput:
+    properties:
+      date_of_birth:
+        type: string
+      name:
+        type: string
+    type: object
+  app.UpdateFilmInput:
+    properties:
+      direcor_id:
+        type: integer
+      genre:
+        type: string
+      minutes:
+        type: number
+      name:
+        type: string
+      rate:
+        type: number
+      year:
+        type: integer
+    type: object
   app.User:
     properties:
       age:
@@ -53,6 +90,27 @@ definitions:
     properties:
       message:
         type: string
+    type: object
+  handler.getAllDirectorsResponce:
+    properties:
+      directors:
+        items:
+          $ref: '#/definitions/app.DirectorsList'
+        type: array
+    type: object
+  handler.getAllFilmsFilteredResponce:
+    properties:
+      films:
+        items:
+          $ref: '#/definitions/app.FilmsList'
+        type: array
+    type: object
+  handler.getAllFilmsResponce:
+    properties:
+      films:
+        items:
+          $ref: '#/definitions/app.FilmsList'
+        type: array
     type: object
   handler.logoutDataInput:
     properties:
@@ -80,7 +138,165 @@ info:
   description: API Server for FilmsList Application
   version: "1.0"
 paths:
-  /api-admin/director/create:
+  /api-admin/directors/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete director
+      operationId: delete-director
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete director
+      tags:
+      - admin api directors
+    get:
+      consumes:
+      - application/json
+      description: get director by id
+      operationId: get-director-by-id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.DirectorsList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Director By ID
+      tags:
+      - admin api directors
+    put:
+      consumes:
+      - application/json
+      description: update director
+      operationId: update-director
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: director info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.UpdateDirectorInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update director
+      tags:
+      - admin api directors
+  /api-admin/directors/all:
+    get:
+      consumes:
+      - application/json
+      description: get all directors
+      operationId: get-all-directors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.getAllDirectorsResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Directors
+      tags:
+      - admin api directors
+  /api-admin/directors/create:
     post:
       consumes:
       - application/json
@@ -120,7 +336,171 @@ paths:
       - ApiKeyAuth: []
       summary: Create director
       tags:
-      - director
+      - admin api directors
+  /api-admin/films/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete film
+      operationId: delete-film
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: film info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.UpdateFilmInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete film
+      tags:
+      - admin api films
+    get:
+      consumes:
+      - application/json
+      description: get film by id
+      operationId: get-film-by-id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FilmsList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Film By ID
+      tags:
+      - admin api films
+    put:
+      consumes:
+      - application/json
+      description: update film
+      operationId: update-film
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: film info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.UpdateFilmInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update film
+      tags:
+      - admin api films
+  /api-admin/films/all:
+    get:
+      consumes:
+      - application/json
+      description: get all films
+      operationId: get-all-films
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.getAllFilmsResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Films
+      tags:
+      - admin api films
   /api-admin/films/create:
     post:
       consumes:
@@ -161,7 +541,378 @@ paths:
       - ApiKeyAuth: []
       summary: Create film
       tags:
-      - films
+      - admin api films
+  /api-user/films/all:
+    post:
+      consumes:
+      - application/json
+      description: get film by filters
+      operationId: get-film-by-filters
+      parameters:
+      - description: films info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.FiltersFilmsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.getAllFilmsFilteredResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Film By Filters
+      tags:
+      - user api films
+  /api-user/films/export:
+    post:
+      consumes:
+      - application/json
+      description: export films
+      operationId: export-films
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Export All Films To CSV
+      tags:
+      - user api films
+  /api-user/films/favourite/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete favourite film
+      operationId: delete-favourite-film
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Favourite Film
+      tags:
+      - user api favourite
+  /api-user/films/favourite/{id}/add:
+    post:
+      consumes:
+      - application/json
+      description: add favourite film
+      operationId: add-favourite-film
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Favourite Film
+      tags:
+      - user api favourite
+  /api-user/films/favourite/all:
+    get:
+      consumes:
+      - application/json
+      description: get all favourite film
+      operationId: get-all-favourite-film
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Favourite Film
+      tags:
+      - user api favourite
+  /api-user/films/favourite/export:
+    post:
+      consumes:
+      - application/json
+      description: export favourite films
+      operationId: export-favourite-films
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Export Favourite Films To CSV
+      tags:
+      - user api favourite
+  /api-user/films/wish/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete wish film
+      operationId: delete-wish-film
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Wish Film
+      tags:
+      - user api wish
+  /api-user/films/wish/{id}/add:
+    post:
+      consumes:
+      - application/json
+      description: add wish film
+      operationId: add-wish-film
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Wish Film
+      tags:
+      - user api wish
+  /api-user/films/wish/all:
+    get:
+      consumes:
+      - application/json
+      description: get all wish film
+      operationId: get-all-wish-film
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.FilmsList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Wish Film
+      tags:
+      - user api wish
+  /api-user/films/wish/export:
+    post:
+      consumes:
+      - application/json
+      description: export wish films
+      operationId: export-wish-films
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Export Wish Films To CSV
+      tags:
+      - user api wish
   /auth/logout:
     post:
       consumes:
