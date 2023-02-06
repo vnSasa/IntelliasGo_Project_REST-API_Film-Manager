@@ -35,7 +35,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 
 	apiAdmin := router.Group("/api-admin", h.adminIdentity)
 	{
-		directors := apiAdmin.Group("/director")
+		directors := apiAdmin.Group("/directors")
 		{
 			directors.POST("/create", h.createDiretor)
 			directors.GET("/all", h.getAllDiretors)
@@ -58,8 +58,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 	{
 		films := apiUser.Group("/films")
 		{
-			films.GET("/all", h.getFilmsFilters)
-			films.GET("/:id", h.getFilmByID)
+			films.POST("/all", h.getFilmsFilters)
 			films.POST("/export", h.exportFilmstoCSV)
 
 			favourite := films.Group("/favourite")
