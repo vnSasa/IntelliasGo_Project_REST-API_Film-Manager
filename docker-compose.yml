@@ -3,12 +3,14 @@ version: '3.8'
 services:
   film-app:
     build: ./
-    command: ./wait-for-postgres.sh db ./film-app
+    command: ./film-app
     ports:
       - 8000:8000
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - DB_PASSWORD=110513
       - DB_HOST=postgres
@@ -24,6 +26,12 @@ services:
       - 5436:5432
     volumes:
       - ./film-app-data:/var/lib/postgresql/data
+      - ./schema/000001_init.up.sql:/docker-entrypoint-initdb.d/000001_init.up.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   redis:
     image: redis:latest
     ports:

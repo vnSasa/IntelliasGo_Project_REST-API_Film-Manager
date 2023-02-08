@@ -85,7 +85,7 @@ func (r *FilmsPostgres) GetAllFilterFilms(input app.FiltersFilmsInput) ([]app.Fi
 		args = append(args, *input.Count)
 	}
 
-	whereQuery := strings.Join(whereValue, ", ")
+	whereQuery := strings.Join(whereValue, " and ")
 	if len(whereQuery) != 0 {
 		queryFilter = fmt.Sprintf("WHERE %s", whereQuery)
 	}

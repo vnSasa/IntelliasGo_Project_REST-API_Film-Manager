@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	Bytes   = 20
-	Timeout = 10
+	MaxHeaderBytes	= 1 << 20
+	ReadTimeout = 10 * time.Second
+	WriteTimeout = 10 * time.Second
 )
 
 type Server struct {
@@ -19,9 +20,9 @@ func (s *Server) Run(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
 		Addr:           ":" + port,
 		Handler:        handler,
-		MaxHeaderBytes: 1 << Bytes,
-		ReadTimeout:    Timeout * time.Second,
-		WriteTimeout:   Timeout * time.Second,
+		MaxHeaderBytes: MaxHeaderBytes,
+		ReadTimeout:    ReadTimeout,
+		WriteTimeout:   WriteTimeout,
 	}
 
 	return s.httpServer.ListenAndServe()

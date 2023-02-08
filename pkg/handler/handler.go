@@ -3,6 +3,11 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/service"
+
+	"github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	
+	_ "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/docs"
 )
 
 type Handler struct {
@@ -16,6 +21,8 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoute() *gin.Engine {
 	router := gin.New()
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.POST("/init-admin", h.InitAdmin)
 
 	auth := router.Group("/auth")
@@ -28,7 +35,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 
 	apiAdmin := router.Group("/api-admin", h.adminIdentity)
 	{
-		directors := apiAdmin.Group("/director")
+		directors := apiAdmin.Group("/directors")
 		{
 			directors.POST("/create", h.createDiretor)
 			directors.GET("/all", h.getAllDiretors)
@@ -51,8 +58,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 	{
 		films := apiUser.Group("/films")
 		{
-			films.GET("/all", h.getFilmsFilters)
-			films.GET("/:id", h.getFilmByID)
+			films.POST("/all", h.getFilmsFilters)
 			films.POST("/export", h.exportFilmstoCSV)
 
 			favourite := films.Group("/favourite")
