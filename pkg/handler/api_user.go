@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"net/http"
-	"strconv"
-	"os"
 	"encoding/csv"
 	"fmt"
+	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
@@ -29,7 +29,7 @@ type getAllFilmsFilteredResponce struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/all [post]
+// @Router /api-user/films/all [post].
 func (h *Handler) getFilmsFilters(c *gin.Context) {
 	var input app.FiltersFilmsInput
 	if err := c.BindJSON(&input); err != nil {
@@ -45,7 +45,7 @@ func (h *Handler) getFilmsFilters(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllFilmsResponce{
+	c.JSON(http.StatusOK, getAllFilmsFilteredResponce{
 		Films: films,
 	})
 }
@@ -63,7 +63,7 @@ func (h *Handler) getFilmsFilters(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/export [post]
+// @Router /api-user/films/export [post].
 func (h *Handler) exportFilmstoCSV(c *gin.Context) {
 	films, err := h.services.FilmsList.GetAll()
 	if err != nil {
@@ -80,15 +80,15 @@ func (h *Handler) exportFilmstoCSV(c *gin.Context) {
 	}
 
 	write := csv.NewWriter(csvfile)
-	
+
 	headers := []string{"list of films"}
 	write.Write(headers)
 
 	var id, name, genre, directorID, rate, year, minutes string
-	
+
 	for key := range films {
 		list := make([]string, 0, 1+len(headers))
-		
+
 		id = fmt.Sprintf("| ID: %v", films[key].ID)
 		name = fmt.Sprintf("| NAME: %v", films[key].Name)
 		genre = fmt.Sprintf("| GENRE: %v", films[key].Genre)
@@ -128,7 +128,7 @@ func (h *Handler) exportFilmstoCSV(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/favourite/{id}/add [post]
+// @Router /api-user/films/favourite/{id}/add [post].
 func (h *Handler) addFavouriteFilm(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -169,7 +169,7 @@ func (h *Handler) addFavouriteFilm(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/favourite/all [get]
+// @Router /api-user/films/favourite/all [get].
 func (h *Handler) getAllFavouriteFilms(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -202,7 +202,7 @@ func (h *Handler) getAllFavouriteFilms(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/favourite/{id} [delete]
+// @Router /api-user/films/favourite/{id} [delete].
 func (h *Handler) deleteFavourite(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -244,7 +244,7 @@ func (h *Handler) deleteFavourite(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/wish/{id}/add [post]
+// @Router /api-user/films/wish/{id}/add [post].
 func (h *Handler) addWishFilm(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -285,7 +285,7 @@ func (h *Handler) addWishFilm(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/wish/all [get]
+// @Router /api-user/films/wish/all [get].
 func (h *Handler) getAllWishFilms(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -318,7 +318,7 @@ func (h *Handler) getAllWishFilms(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/wish/{id} [delete]
+// @Router /api-user/films/wish/{id} [delete].
 func (h *Handler) deleteWish(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -359,7 +359,7 @@ func (h *Handler) deleteWish(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/favourite/export [post]
+// @Router /api-user/films/favourite/export [post].
 func (h *Handler) exportFtoCSV(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -375,7 +375,7 @@ func (h *Handler) exportFtoCSV(c *gin.Context) {
 		return
 	}
 
-	csvfile, err := os.Create("favourite_films.csv")
+	csvfile, err := os.Create("../favourite_films.csv")
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
@@ -383,15 +383,15 @@ func (h *Handler) exportFtoCSV(c *gin.Context) {
 	}
 
 	write := csv.NewWriter(csvfile)
-	
+
 	headers := []string{"list of my favourite films"}
 	write.Write(headers)
 
 	var id, name, genre, directorID, rate, year, minutes string
-	
+
 	for key := range films {
 		list := make([]string, 0, 1+len(headers))
-		
+
 		id = fmt.Sprintf("| ID: %v", films[key].ID)
 		name = fmt.Sprintf("| NAME: %v", films[key].Name)
 		genre = fmt.Sprintf("| GENRE: %v", films[key].Genre)
@@ -430,7 +430,7 @@ func (h *Handler) exportFtoCSV(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-user/films/wish/export [post]
+// @Router /api-user/films/wish/export [post].
 func (h *Handler) exportWtoCSV(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
@@ -454,15 +454,15 @@ func (h *Handler) exportWtoCSV(c *gin.Context) {
 	}
 
 	write := csv.NewWriter(csvfile)
-	
+
 	headers := []string{"list of my wish films"}
 	write.Write(headers)
 
 	var id, name, genre, directorID, rate, year, minutes string
-	
+
 	for key := range films {
 		list := make([]string, 0, 1+len(headers))
-		
+
 		id = fmt.Sprintf("| ID: %v", films[key].ID)
 		name = fmt.Sprintf("| NAME: %v", films[key].Name)
 		genre = fmt.Sprintf("| GENRE: %v", films[key].Genre)

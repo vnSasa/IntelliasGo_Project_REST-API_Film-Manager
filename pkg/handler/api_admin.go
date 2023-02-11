@@ -23,7 +23,7 @@ import (
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/directors/create [post]
+// @Router /api-admin/directors/create [post].
 func (h *Handler) createDiretor(c *gin.Context) {
 	var input app.DirectorsList
 	if err := c.BindJSON(&input); err != nil {
@@ -61,7 +61,7 @@ type getAllDirectorsResponce struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/directors/all [get]
+// @Router /api-admin/directors/all [get].
 func (h *Handler) getAllDiretors(c *gin.Context) {
 	directors, err := h.services.DirectorsList.GetAll()
 	if err != nil {
@@ -89,7 +89,7 @@ func (h *Handler) getAllDiretors(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/directors/{id} [get]
+// @Router /api-admin/directors/{id} [get].
 func (h *Handler) getDiretorByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -123,7 +123,7 @@ func (h *Handler) getDiretorByID(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/directors/{id} [put]
+// @Router /api-admin/directors/{id} [put].
 func (h *Handler) updateDiretor(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -164,7 +164,7 @@ func (h *Handler) updateDiretor(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/directors/{id} [delete]
+// @Router /api-admin/directors/{id} [delete].
 func (h *Handler) deleteDiretor(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -198,7 +198,7 @@ func (h *Handler) deleteDiretor(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/films/create [post]
+// @Router /api-admin/films/create [post].
 func (h *Handler) createFilm(c *gin.Context) {
 	var input app.FilmsList
 	if err := c.BindJSON(&input); err != nil {
@@ -251,7 +251,7 @@ type getAllFilmsResponce struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/films/all [get]
+// @Router /api-admin/films/all [get].
 func (h *Handler) getAllFilms(c *gin.Context) {
 	films, err := h.services.FilmsList.GetAll()
 	if err != nil {
@@ -279,7 +279,7 @@ func (h *Handler) getAllFilms(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/films/{id} [get]
+// @Router /api-admin/films/{id} [get].
 func (h *Handler) getFilmByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -313,7 +313,7 @@ func (h *Handler) getFilmByID(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/films/{id} [put]
+// @Router /api-admin/films/{id} [put].
 func (h *Handler) updateFilm(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -355,7 +355,7 @@ func (h *Handler) updateFilm(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /api-admin/films/{id} [delete]
+// @Router /api-admin/films/{id} [delete].
 func (h *Handler) deleteFilm(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

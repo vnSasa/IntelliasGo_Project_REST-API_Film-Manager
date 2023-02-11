@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/service"
 
-	"github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
-	
+	"github.com/swaggo/gin-swagger"
+
 	_ "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/docs"
 )
 

@@ -4,20 +4,22 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"time"
-	"strings"
 	"os"
+	"strings"
+	"time"
 
-	"github.com/twinj/uuid"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/twinj/uuid"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/pkg/repository"
 )
 
 const (
-	tokenTTLup = 10 * time.Minute
-	signingKey = "qrkjk#4#%35FSFJlja#4353KSFjH"
-	salt       = "hjqrhjqw124617ajfhajs"
+	tokenTTLup          = 10 * time.Minute
+	signingKey          = "qrkjk#4#%35FSFJlja#4353KSFjH"
+	salt                = "hjqrhjqw124617ajfhajs"
+	timeForAccessToken  = 15
+	timeForRefreshToken = 24 * 7
 )
 
 type AuthService struct {
@@ -61,7 +63,7 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 
 	var (
 		isAdmin = false
-		isUser = true
+		isUser  = true
 	)
 
 	if strings.Compare(login, os.Getenv("ADMIN_LOGIN")) == 0 {
@@ -70,32 +72,32 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 	}
 
 	td := &app.TokenDetails{}
-	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
-	td.AccessUuid = uuid.NewV4().String()
+	td.AtExpires = time.Now().Add(time.Minute * timeForAccessToken).Unix()
+	td.AccessUUID = uuid.NewV4().String()
 
-	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
-	td.RefreshUuid = uuid.NewV4().String()
+	td.RtExpires = time.Now().Add(time.Hour * timeForRefreshToken).Unix()
+	td.RefreshUUID = uuid.NewV4().String()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.AccessTokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: td.AtExpires,
 		},
 		UserID:  user.ID,
-		AtUuid: td.AccessUuid,
-		RtUuid: td.RefreshUuid,
+		AtUUID:  td.AccessUUID,
+		RtUUID:  td.RefreshUUID,
 		IsAdmin: isAdmin,
-		IsUser: isUser,
+		IsUser:  isUser,
 	})
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.RefreshTokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: td.RtExpires,
 		},
-		UserID: user.ID,
-		RtUuid: td.RefreshUuid,
-		AtUuid: td.AccessUuid,
-		IsAdmin: isAdmin,
-		IsUser: isUser,
+		UserID:    user.ID,
+		RtUUID:    td.RefreshUUID,
+		AtUUID:    td.AccessUUID,
+		IsAdmin:   isAdmin,
+		IsUser:    isUser,
 		IsRefresh: true,
 	})
 
@@ -114,31 +116,31 @@ func (s *AuthService) GenerateToken(login, password string) (*app.TokenDetails, 
 
 func (s *AuthService) RefreshToken(refreshData *app.RefreshTokenClaims) (*app.TokenDetails, error) {
 	td := &app.TokenDetails{}
-	td.AtExpires = time.Now().Add(time.Minute * 15).Unix()
-	td.AccessUuid = uuid.NewV4().String()
+	td.AtExpires = time.Now().Add(time.Minute * timeForAccessToken).Unix()
+	td.AccessUUID = uuid.NewV4().String()
 
-	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()
-	td.RefreshUuid = uuid.NewV4().String()
+	td.RtExpires = time.Now().Add(time.Hour * timeForRefreshToken).Unix()
+	td.RefreshUUID = uuid.NewV4().String()
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.AccessTokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: td.AtExpires,
 		},
-		UserID: refreshData.UserID,
-		AtUuid: td.AccessUuid,
-		RtUuid: td.RefreshUuid,
+		UserID:  refreshData.UserID,
+		AtUUID:  td.AccessUUID,
+		RtUUID:  td.RefreshUUID,
 		IsAdmin: refreshData.IsAdmin,
-		IsUser: refreshData.IsUser,
+		IsUser:  refreshData.IsUser,
 	})
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &app.RefreshTokenClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: td.RtExpires,
 		},
-		UserID: refreshData.UserID,
-		RtUuid: td.RefreshUuid,
-		AtUuid: td.AccessUuid,
-		IsAdmin: refreshData.IsAdmin,
-		IsUser: refreshData.IsUser,
+		UserID:    refreshData.UserID,
+		RtUUID:    td.RefreshUUID,
+		AtUUID:    td.AccessUUID,
+		IsAdmin:   refreshData.IsAdmin,
+		IsUser:    refreshData.IsUser,
 		IsRefresh: true,
 	})
 	var err error

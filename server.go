@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	MaxHeaderBytes	= 1 << 20
-	ReadTimeout = 10 * time.Second
-	WriteTimeout = 10 * time.Second
+	MaxHeaderBytes = 1 << 20
+	ReadTimeout    = 10 * time.Second
+	WriteTimeout   = 10 * time.Second
 )
 
 type Server struct {

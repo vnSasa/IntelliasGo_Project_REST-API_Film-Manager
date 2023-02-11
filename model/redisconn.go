@@ -6,8 +6,8 @@ import (
 
 func GetRedisConn() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr:     "redis:6379",
 		Password: "",
-		DB: 0,
+		DB:       0,
 	})
 }
