@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"time"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	app "github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
@@ -19,7 +19,7 @@ import (
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /init-admin [post]
+// @Router /init-admin [post].
 func (h *Handler) InitAdmin(c *gin.Context) {
 	input := app.User{
 		Login:    os.Getenv("ADMIN_LOGIN"),
@@ -50,12 +50,12 @@ func (h *Handler) InitAdmin(c *gin.Context) {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/sign-up [post]
+// @Router /auth/sign-up [post].
 func (h *Handler) signUp(c *gin.Context) {
 	var input app.User
 
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 
 		return
 	}
@@ -88,7 +88,7 @@ type userDataInput struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/sign-in [post]
+// @Router /auth/sign-in [post].
 func (h *Handler) signIn(c *gin.Context) {
 	var input userDataInput
 
@@ -109,13 +109,13 @@ func (h *Handler) signIn(c *gin.Context) {
 	at := time.Unix(token.AtExpires, 0)
 	rt := time.Unix(token.RtExpires, 0)
 	now := time.Now()
-	_, err = red.Set(c, token.AccessUuid, token.AccessToken, at.Sub(now)).Result()
+	_, err = red.Set(c, token.AccessUUID, token.AccessToken, at.Sub(now)).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	_, err = red.Set(c, token.RefreshUuid, token.RefreshToken, rt.Sub(now)).Result()
+	_, err = red.Set(c, token.RefreshUUID, token.RefreshToken, rt.Sub(now)).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
@@ -143,7 +143,7 @@ type refreshDataInput struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/refresh [post]
+// @Router /auth/refresh [post].
 func (h *Handler) refreshSignIn(c *gin.Context) {
 	var input refreshDataInput
 	if err := c.BindJSON(&input); err != nil {
@@ -171,37 +171,37 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 
 		return
 	}
-	
+
 	red := app.GetRedisConn()
-	_, err = red.Get(c, RtData.RtUuid).Result()
+	_, err = red.Get(c, RtData.RtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	_, err = red.Del(c, RtData.RtUuid).Result()
+	_, err = red.Del(c, RtData.RtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	_, err = red.Del(c, RtData.AtUuid).Result()
+	_, err = red.Del(c, RtData.AtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	
+
 	at := time.Unix(token.AtExpires, 0)
 	rt := time.Unix(token.RtExpires, 0)
 	now := time.Now()
-	_, err = red.Set(c, token.AccessUuid, token.AccessToken, at.Sub(now)).Result()
+	_, err = red.Set(c, token.AccessUUID, token.AccessToken, at.Sub(now)).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	_, err = red.Set(c, token.RefreshUuid, token.RefreshToken, rt.Sub(now)).Result()
+	_, err = red.Set(c, token.RefreshUUID, token.RefreshToken, rt.Sub(now)).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
@@ -209,7 +209,7 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"access_token": token.AccessToken,
+		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
 	})
 }
@@ -229,7 +229,7 @@ type logoutDataInput struct {
 // @Failure 400,404 {object} errorResponse
 // @Failure 500 {object} errorResponse
 // @Failure default {object} errorResponse
-// @Router /auth/logout [post]
+// @Router /auth/logout [post].
 func (h *Handler) logout(c *gin.Context) {
 	var input logoutDataInput
 	if err := c.BindJSON(&input); err != nil {
@@ -246,13 +246,13 @@ func (h *Handler) logout(c *gin.Context) {
 	}
 
 	red := app.GetRedisConn()
-	_, err = red.Del(c, claims.AtUuid).Result()
+	_, err = red.Del(c, claims.AtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
-	_, err = red.Del(c, claims.RtUuid).Result()
+	_, err = red.Del(c, claims.RtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 

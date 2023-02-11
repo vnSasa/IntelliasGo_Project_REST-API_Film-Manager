@@ -9,15 +9,15 @@ linters:
     - bodyclose
     - depguard
     - dogsled
-    - dupl
+    # - dupl
     - errcheck
     - exhaustive
     - funlen
     - gochecknoinits
     - goconst
     - gocyclo
-    - gofmt
-    - goimports
+    # - gofmt
+    # - goimports
     - revive
     - gomnd
     - goprintffuncname

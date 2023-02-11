@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/vnSasa/IntelliasGo_Project_REST-API_Film-Manager/model"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +23,7 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 		return
 	}
 	red := app.GetRedisConn()
-	_, err = red.Get(c, claims.AtUuid).Result()
+	_, err = red.Get(c, claims.AtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
@@ -44,7 +45,7 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		return
 	}
 	red := app.GetRedisConn()
-	_, err = red.Get(c, claims.AtUuid).Result()
+	_, err = red.Get(c, claims.AtUUID).Result()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 
