@@ -72,11 +72,6 @@ func (h *Handler) signUp(c *gin.Context) {
 	})
 }
 
-type userDataInput struct {
-	Login    string `json:"login" binding:"required"`
-	Password string `json:"password_hash" binding:"required"`
-}
-
 // @Summary SignIn
 // @Tags auth
 // @Description login
@@ -90,10 +85,10 @@ type userDataInput struct {
 // @Failure default {object} errorResponse
 // @Router /auth/sign-in [post].
 func (h *Handler) signIn(c *gin.Context) {
-	var input userDataInput
+	var input app.UserDataInput
 
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 
 		return
 	}
@@ -128,10 +123,6 @@ func (h *Handler) signIn(c *gin.Context) {
 	})
 }
 
-type refreshDataInput struct {
-	RefreshToken string `json:"refresh_token"`
-}
-
 // @Summary RefreshSignIn
 // @Tags auth
 // @Description token
@@ -145,7 +136,7 @@ type refreshDataInput struct {
 // @Failure default {object} errorResponse
 // @Router /auth/refresh [post].
 func (h *Handler) refreshSignIn(c *gin.Context) {
-	var input refreshDataInput
+	var input app.RefreshDataInput
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -159,7 +150,7 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 		return
 	}
 
-	if RtData.IsRefresh != true {
+	if RtData.IsRefresh {
 		newErrorResponse(c, http.StatusInternalServerError, "is not refresh token")
 
 		return
@@ -214,10 +205,6 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 	})
 }
 
-type logoutDataInput struct {
-	AccessToken string `json:"access_token"`
-}
-
 // @Summary Logout
 // @Tags auth
 // @Description logout token
@@ -231,7 +218,7 @@ type logoutDataInput struct {
 // @Failure default {object} errorResponse
 // @Router /auth/logout [post].
 func (h *Handler) logout(c *gin.Context) {
-	var input logoutDataInput
+	var input app.LogoutDataInput
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 
