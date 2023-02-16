@@ -214,7 +214,7 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 func (h *Handler) logout(c *gin.Context) {
 	var input app.LogoutDataInput
 	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 
 		return
 	}
