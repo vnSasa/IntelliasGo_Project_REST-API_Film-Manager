@@ -150,12 +150,6 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 		return
 	}
 
-	if RtData.IsRefresh {
-		newErrorResponse(c, http.StatusInternalServerError, "is not refresh token")
-
-		return
-	}
-
 	token, err := h.services.Authorization.RefreshToken(RtData)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

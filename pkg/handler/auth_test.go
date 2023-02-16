@@ -167,3 +167,69 @@ func TestHandler_signIn(t *testing.T) {
 		})
 	}
 }
+
+func TestHandler_refreshSignIn(t *testing.T) {
+	type mockBehaviorData func(r *mock_service.MockAuthorization, data app.RefreshDataInput)
+	type mockBehaviorClaims func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims)
+
+	tests := []struct {
+		name	string
+		inputBody	string
+		inputData	app.RefreshDataInput
+		mockBehaviorData	mockBehaviorData
+		inputClaims	app.RefreshTokenClaims
+		mockBehaviorClaims	mockBehaviorClaims
+		expectedStatusCode	int
+		expectedResponseBody	string
+	}{
+		{
+			name:	"OK",
+			inputBody:	`{"refresh_token": "refresh_token"}`,
+			inputData:	app.RefreshDataInput{
+				RefreshToken: "refresh_token",
+			},
+			mockBehaviorData:	func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
+				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
+					IsRefresh:	true,
+				}, nil)
+			},
+			inputClaims:	app.RefreshTokenClaims{
+				IsRefresh:	true,
+			},
+			mockBehaviorClaims: func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims) {
+				r.EXPECT().RefreshToken(&input).Return(&app.TokenDetails{
+					AccessToken:  "Atoken",
+					RefreshToken: "Rtoken",
+				}, nil)
+			},
+			expectedStatusCode:	200,
+			expectedResponseBody:	`{"access_token":"Atoken","refresh_token":"Rtoken"}`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			repo := mock_service.NewMockAuthorization(c)
+			test.mockBehaviorData(repo, test.inputData)
+			test.mockBehaviorClaims(repo, test.inputClaims)
+
+			services := &service.Service{Authorization: repo}
+			handler := Handler{services}
+
+			r := gin.New()
+			r.POST("/refresh", handler.refreshSignIn)
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("POST", "/refresh",
+					bytes.NewBufferString(test.inputBody))
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, w.Code, test.expectedStatusCode)
+			assert.Equal(t, w.Body.String(), test.expectedResponseBody)
+		})
+	}
+}
