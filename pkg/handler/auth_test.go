@@ -173,28 +173,28 @@ func TestHandler_refreshSignIn(t *testing.T) {
 	type mockBehaviorClaims func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims)
 
 	tests := []struct {
-		name	string
-		inputBody	string
-		inputData	app.RefreshDataInput
-		mockBehaviorData	mockBehaviorData
-		inputClaims	app.RefreshTokenClaims
-		mockBehaviorClaims	mockBehaviorClaims
-		expectedStatusCode	int
-		expectedResponseBody	string
+		name                 string
+		inputBody            string
+		inputData            app.RefreshDataInput
+		mockBehaviorData     mockBehaviorData
+		inputClaims          app.RefreshTokenClaims
+		mockBehaviorClaims   mockBehaviorClaims
+		expectedStatusCode   int
+		expectedResponseBody string
 	}{
 		{
-			name:	"OK",
-			inputBody:	`{"refresh_token": "refresh_token"}`,
-			inputData:	app.RefreshDataInput{
+			name:      "OK",
+			inputBody: `{"refresh_token": "refresh_token"}`,
+			inputData: app.RefreshDataInput{
 				RefreshToken: "refresh_token",
 			},
-			mockBehaviorData:	func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
+			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
 				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
-					IsRefresh:	true,
+					IsRefresh: true,
 				}, nil)
 			},
-			inputClaims:	app.RefreshTokenClaims{
-				IsRefresh:	true,
+			inputClaims: app.RefreshTokenClaims{
+				IsRefresh: true,
 			},
 			mockBehaviorClaims: func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims) {
 				r.EXPECT().RefreshToken(&input).Return(&app.TokenDetails{
@@ -202,8 +202,8 @@ func TestHandler_refreshSignIn(t *testing.T) {
 					RefreshToken: "Rtoken",
 				}, nil)
 			},
-			expectedStatusCode:	200,
-			expectedResponseBody:	`{"access_token":"Atoken","refresh_token":"Rtoken"}`,
+			expectedStatusCode:   200,
+			expectedResponseBody: `{"access_token":"Atoken","refresh_token":"Rtoken"}`,
 		},
 	}
 
@@ -224,7 +224,78 @@ func TestHandler_refreshSignIn(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/refresh",
-					bytes.NewBufferString(test.inputBody))
+				bytes.NewBufferString(test.inputBody))
+
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, w.Code, test.expectedStatusCode)
+			assert.Equal(t, w.Body.String(), test.expectedResponseBody)
+		})
+	}
+}
+
+func TestHandler_logout(t *testing.T) {
+	type mockBehavior func(r *mock_service.MockAuthorization, token app.LogoutDataInput)
+
+	tests := []struct {
+		name                 string
+		inputBody            string
+		inputData            app.LogoutDataInput
+		mockBehavior         mockBehavior
+		expectedStatusCode   int
+		expectedResponseBody string
+	}{
+		{
+			name:      "OK",
+			inputBody: `{"access_token": "token"}`,
+			inputData: app.LogoutDataInput{
+				AccessToken: "token",
+			},
+			mockBehavior: func(r *mock_service.MockAuthorization, token app.LogoutDataInput) {
+				r.EXPECT().ParseToken(token.AccessToken).Return(&app.AccessTokenClaims{}, nil)
+			},
+			expectedStatusCode:   200,
+			expectedResponseBody: `"Logout Success"`,
+		},
+		{
+			name:                 "Wrong Input",
+			inputBody:            `{"access_token"}`,
+			inputData:            app.LogoutDataInput{},
+			mockBehavior:         func(r *mock_service.MockAuthorization, token app.LogoutDataInput) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: `{"message":"invalid input body"}`,
+		},
+		{
+			name:      "Service Error",
+			inputBody: `{"access_token": "token"}`,
+			inputData: app.LogoutDataInput{
+				AccessToken: "token",
+			},
+			mockBehavior: func(r *mock_service.MockAuthorization, token app.LogoutDataInput) {
+				r.EXPECT().ParseToken(token.AccessToken).Return(nil, errors.New("something went wrong"))
+			},
+			expectedStatusCode:   500,
+			expectedResponseBody: `{"message":"something went wrong"}`,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			repo := mock_service.NewMockAuthorization(c)
+			test.mockBehavior(repo, test.inputData)
+
+			services := &service.Service{Authorization: repo}
+			handler := Handler{services}
+
+			r := gin.New()
+			r.POST("/logout", handler.logout)
+
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("POST", "/logout",
+				bytes.NewBufferString(test.inputBody))
 
 			r.ServeHTTP(w, req)
 
