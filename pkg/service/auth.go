@@ -186,9 +186,14 @@ func (s *AuthService) ParseRefreshToken(refreshToken string) (*app.RefreshTokenC
 	if err != nil {
 		return nil, err
 	}
+
 	claims, ok := token.Claims.(*app.RefreshTokenClaims)
 	if !ok {
 		return nil, errors.New("token claims are not of type *tokenClaims")
+	}
+
+	if !claims.IsRefresh {
+		return nil, errors.New("is not refresh token")
 	}
 
 	return claims, nil

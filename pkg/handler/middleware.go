@@ -29,7 +29,7 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 
 		return
 	}
-	if claims.IsAdmin != true {
+	if !claims.IsAdmin {
 		newErrorResponse(c, http.StatusUnauthorized, "only admin have access")
 
 		return
@@ -51,7 +51,7 @@ func (h *Handler) userIdentity(c *gin.Context) {
 
 		return
 	}
-	if claims.IsUser != true {
+	if !claims.IsUser {
 		newErrorResponse(c, http.StatusUnauthorized, "only users have access")
 
 		return
@@ -67,6 +67,10 @@ func (h *Handler) parseAuthHeader(c *gin.Context) (*app.AccessTokenClaims, error
 
 	headerParts := strings.Split(header, " ")
 	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		return nil, errors.New("invalid auth header")
+	}
+
+	if headerParts[0] != "Bearer" {
 		return nil, errors.New("invalid auth header")
 	}
 
