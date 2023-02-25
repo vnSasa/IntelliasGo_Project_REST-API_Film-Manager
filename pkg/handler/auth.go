@@ -142,25 +142,16 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 
 		return
 	}
-
 	RtData, err := h.services.Authorization.ParseRefreshToken(input.RefreshToken)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusUnauthorized, "invalid refresh token")
 
 		return
 	}
-
-	token, err := h.services.Authorization.RefreshToken(RtData)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-		return
-	}
-
 	red := app.GetRedisConn()
 	_, err = red.Get(c, RtData.RtUUID).Result()
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, "redis error")
 
 		return
 	}
@@ -176,7 +167,12 @@ func (h *Handler) refreshSignIn(c *gin.Context) {
 
 		return
 	}
+	token, err := h.services.Authorization.RefreshToken(RtData)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "something went wrong")
 
+		return
+	}
 	at := time.Unix(token.AtExpires, 0)
 	rt := time.Unix(token.RtExpires, 0)
 	now := time.Now()

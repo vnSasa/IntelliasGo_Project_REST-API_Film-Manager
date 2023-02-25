@@ -175,6 +175,32 @@ func (s *AuthService) ParseToken(accessToken string) (*app.AccessTokenClaims, er
 	return claims, nil
 }
 
+func (s *AuthService) VerifyAdminToken(accessToken string) (*app.AccessTokenClaims, error) {
+	claims, err := s.ParseToken(accessToken)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	if !claims.IsAdmin {
+		return nil, errors.New("only admin have access!!!")
+	}
+
+	return claims, nil
+}
+
+func (s *AuthService) VerifyUserToken(accessToken string) (*app.AccessTokenClaims, error) {
+	claims, err := s.ParseToken(accessToken)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+
+	if !claims.IsUser {
+		return nil, errors.New("only user have access!!!")
+	}
+	
+	return claims, nil
+}
+
 func (s *AuthService) ParseRefreshToken(refreshToken string) (*app.RefreshTokenClaims, error) {
 	token, err := jwt.ParseWithClaims(refreshToken, &app.RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

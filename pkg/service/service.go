@@ -15,6 +15,8 @@ type Authorization interface {
 	GenerateToken(login, password string) (*app.TokenDetails, error)
 	RefreshToken(refreshData *app.RefreshTokenClaims) (*app.TokenDetails, error)
 	ParseToken(token string) (*app.AccessTokenClaims, error)
+	VerifyAdminToken(accessToken string) (*app.AccessTokenClaims, error)
+	VerifyUserToken(accessToken string) (*app.AccessTokenClaims, error)
 	ParseRefreshToken(refreshToken string) (*app.RefreshTokenClaims, error)
 }
 

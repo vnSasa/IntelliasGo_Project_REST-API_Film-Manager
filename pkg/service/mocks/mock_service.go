@@ -152,6 +152,36 @@ func (mr *MockAuthorizationMockRecorder) RefreshToken(refreshData interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefreshToken", reflect.TypeOf((*MockAuthorization)(nil).RefreshToken), refreshData)
 }
 
+// VerifyAdminToken mocks base method.
+func (m *MockAuthorization) VerifyAdminToken(accessToken string) (*app.AccessTokenClaims, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyAdminToken", accessToken)
+	ret0, _ := ret[0].(*app.AccessTokenClaims)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyAdminToken indicates an expected call of VerifyAdminToken.
+func (mr *MockAuthorizationMockRecorder) VerifyAdminToken(accessToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyAdminToken", reflect.TypeOf((*MockAuthorization)(nil).VerifyAdminToken), accessToken)
+}
+
+// VerifyUserToken mocks base method.
+func (m *MockAuthorization) VerifyUserToken(accessToken string) (*app.AccessTokenClaims, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "VerifyUserToken", accessToken)
+	ret0, _ := ret[0].(*app.AccessTokenClaims)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// VerifyUserToken indicates an expected call of VerifyUserToken.
+func (mr *MockAuthorizationMockRecorder) VerifyUserToken(accessToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyUserToken", reflect.TypeOf((*MockAuthorization)(nil).VerifyUserToken), accessToken)
+}
+
 // MockDirectorsList is a mock of DirectorsList interface.
 type MockDirectorsList struct {
 	ctrl     *gomock.Controller
