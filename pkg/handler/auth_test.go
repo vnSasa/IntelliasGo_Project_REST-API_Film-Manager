@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"bytes"
 	"errors"
 	"net/http/httptest"
@@ -177,6 +178,10 @@ func TestHandler_refreshSignIn(t *testing.T) {
 		inputBody            string
 		inputData            app.RefreshDataInput
 		mockBehaviorData     mockBehaviorData
+		atUuidKey	string
+		atUuidValue	string
+		rtUuidKey	string
+		rtUuidValue	string
 		inputClaims          app.RefreshTokenClaims
 		mockBehaviorClaims   mockBehaviorClaims
 		expectedStatusCode   int
@@ -190,10 +195,16 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			},
 			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
 				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
+					AtUUID: "atkey",
+					RtUUID:	"rtkey",
 					IsRefresh: true,
 				}, nil)
 			},
+			rtUuidKey:	"rtkey",
+			rtUuidValue:	"rtvalue",
 			inputClaims: app.RefreshTokenClaims{
+				AtUUID: "atkey",
+				RtUUID:	"rtkey",
 				IsRefresh: true,
 			},
 			mockBehaviorClaims: func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims) {
@@ -205,6 +216,62 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"access_token":"Atoken","refresh_token":"Rtoken"}`,
 		},
+		{
+			name:	"Invalid Refresh Token",
+			inputBody: `{"refresh_token": "invalid_refresh_token"}`,
+			inputData: app.RefreshDataInput{
+				RefreshToken: "invalid_refresh_token",
+			},
+			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
+				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(nil, errors.New("invalid refresh token"))
+			},
+			expectedStatusCode:	401,
+			expectedResponseBody:	`{"message":"invalid refresh token"}`,
+		},
+		{
+			name:      "Redis Error",
+			inputBody: `{"refresh_token": "refresh_token"}`,
+			inputData: app.RefreshDataInput{
+				RefreshToken: "refresh_token",
+			},
+			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
+				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
+					RtUUID:	"invalid_rtkey",
+					IsRefresh: true,
+				}, nil)
+			},
+			rtUuidKey:	"rtkey",
+			rtUuidValue:	"rtvalue",
+			expectedStatusCode:   500,
+			expectedResponseBody: `{"message":"redis error"}`,
+		},
+		{
+			name:      "Service Error",
+			inputBody: `{"refresh_token": "refresh_token"}`,
+			inputData: app.RefreshDataInput{
+				RefreshToken: "refresh_token",
+			},
+			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
+				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
+					AtUUID: "atkey",
+					RtUUID:	"rtkey",
+					IsRefresh: true,
+				}, nil)
+			},
+			rtUuidKey:	"rtkey",
+			rtUuidValue:	"rtvalue",
+			inputClaims: app.RefreshTokenClaims{
+				AtUUID: "atkey",
+				RtUUID:	"rtkey",
+				IsRefresh: true,
+			},
+			mockBehaviorClaims: func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims) {
+				r.EXPECT().RefreshToken(&input).Return(nil, errors.New("something went wrong"))
+			},
+			expectedStatusCode:   500,
+			expectedResponseBody: `{"message":"something went wrong"}`,
+		},
+
 	}
 
 	for _, test := range tests {
@@ -213,14 +280,22 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			defer c.Finish()
 
 			repo := mock_service.NewMockAuthorization(c)
-			test.mockBehaviorData(repo, test.inputData)
-			test.mockBehaviorClaims(repo, test.inputClaims)
-
+			if test.mockBehaviorData != nil {
+				test.mockBehaviorData(repo, test.inputData)
+			}
+			if test.mockBehaviorClaims != nil {
+				test.mockBehaviorClaims(repo, test.inputClaims)
+			}
+			
 			services := &service.Service{Authorization: repo}
 			handler := Handler{services}
 
 			r := gin.New()
 			r.POST("/refresh", handler.refreshSignIn)
+
+			redis := app.GetRedisConn()
+			redis.Set(context.Background(), test.rtUuidKey, test.rtUuidValue, 0)
+			redis.Set(context.Background(), test.atUuidKey, test.atUuidValue, 0)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/refresh",
