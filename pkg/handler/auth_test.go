@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"context"
 	"bytes"
+	"context"
 	"errors"
 	"net/http/httptest"
 	"testing"
@@ -178,10 +178,10 @@ func TestHandler_refreshSignIn(t *testing.T) {
 		inputBody            string
 		inputData            app.RefreshDataInput
 		mockBehaviorData     mockBehaviorData
-		atUuidKey	string
-		atUuidValue	string
-		rtUuidKey	string
-		rtUuidValue	string
+		atUUIDKey            string
+		atUUIDValue          string
+		rtUUIDKey            string
+		rtUUIDValue          string
 		inputClaims          app.RefreshTokenClaims
 		mockBehaviorClaims   mockBehaviorClaims
 		expectedStatusCode   int
@@ -195,16 +195,16 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			},
 			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
 				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
-					AtUUID: "atkey",
-					RtUUID:	"rtkey",
+					AtUUID:    "atkey",
+					RtUUID:    "rtkey",
 					IsRefresh: true,
 				}, nil)
 			},
-			rtUuidKey:	"rtkey",
-			rtUuidValue:	"rtvalue",
+			rtUUIDKey:   "rtkey",
+			rtUUIDValue: "rtvalue",
 			inputClaims: app.RefreshTokenClaims{
-				AtUUID: "atkey",
-				RtUUID:	"rtkey",
+				AtUUID:    "atkey",
+				RtUUID:    "rtkey",
 				IsRefresh: true,
 			},
 			mockBehaviorClaims: func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims) {
@@ -217,7 +217,7 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			expectedResponseBody: `{"access_token":"Atoken","refresh_token":"Rtoken"}`,
 		},
 		{
-			name:	"Invalid Refresh Token",
+			name:      "Invalid Refresh Token",
 			inputBody: `{"refresh_token": "invalid_refresh_token"}`,
 			inputData: app.RefreshDataInput{
 				RefreshToken: "invalid_refresh_token",
@@ -225,8 +225,8 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
 				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(nil, errors.New("invalid refresh token"))
 			},
-			expectedStatusCode:	401,
-			expectedResponseBody:	`{"message":"invalid refresh token"}`,
+			expectedStatusCode:   401,
+			expectedResponseBody: `{"message":"invalid refresh token"}`,
 		},
 		{
 			name:      "Redis Error",
@@ -236,12 +236,12 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			},
 			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
 				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
-					RtUUID:	"invalid_rtkey",
+					RtUUID:    "invalid_rtkey",
 					IsRefresh: true,
 				}, nil)
 			},
-			rtUuidKey:	"rtkey",
-			rtUuidValue:	"rtvalue",
+			rtUUIDKey:            "rtkey",
+			rtUUIDValue:          "rtvalue",
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"message":"redis error"}`,
 		},
@@ -253,16 +253,16 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			},
 			mockBehaviorData: func(r *mock_service.MockAuthorization, data app.RefreshDataInput) {
 				r.EXPECT().ParseRefreshToken(data.RefreshToken).Return(&app.RefreshTokenClaims{
-					AtUUID: "atkey",
-					RtUUID:	"rtkey",
+					AtUUID:    "atkey",
+					RtUUID:    "rtkey",
 					IsRefresh: true,
 				}, nil)
 			},
-			rtUuidKey:	"rtkey",
-			rtUuidValue:	"rtvalue",
+			rtUUIDKey:   "rtkey",
+			rtUUIDValue: "rtvalue",
 			inputClaims: app.RefreshTokenClaims{
-				AtUUID: "atkey",
-				RtUUID:	"rtkey",
+				AtUUID:    "atkey",
+				RtUUID:    "rtkey",
 				IsRefresh: true,
 			},
 			mockBehaviorClaims: func(r *mock_service.MockAuthorization, input app.RefreshTokenClaims) {
@@ -271,7 +271,6 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"message":"something went wrong"}`,
 		},
-
 	}
 
 	for _, test := range tests {
@@ -286,7 +285,7 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			if test.mockBehaviorClaims != nil {
 				test.mockBehaviorClaims(repo, test.inputClaims)
 			}
-			
+
 			services := &service.Service{Authorization: repo}
 			handler := Handler{services}
 
@@ -294,8 +293,8 @@ func TestHandler_refreshSignIn(t *testing.T) {
 			r.POST("/refresh", handler.refreshSignIn)
 
 			redis := app.GetRedisConn()
-			redis.Set(context.Background(), test.rtUuidKey, test.rtUuidValue, 0)
-			redis.Set(context.Background(), test.atUuidKey, test.atUuidValue, 0)
+			redis.Set(context.Background(), test.rtUUIDKey, test.rtUUIDValue, 0)
+			redis.Set(context.Background(), test.atUUIDKey, test.atUUIDValue, 0)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/refresh",

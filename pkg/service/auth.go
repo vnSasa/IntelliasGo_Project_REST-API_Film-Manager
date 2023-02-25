@@ -182,7 +182,7 @@ func (s *AuthService) VerifyAdminToken(accessToken string) (*app.AccessTokenClai
 	}
 
 	if !claims.IsAdmin {
-		return nil, errors.New("only admin have access!!!")
+		return nil, errors.New("only admin have access")
 	}
 
 	return claims, nil
@@ -195,9 +195,9 @@ func (s *AuthService) VerifyUserToken(accessToken string) (*app.AccessTokenClaim
 	}
 
 	if !claims.IsUser {
-		return nil, errors.New("only user have access!!!")
+		return nil, errors.New("only user have access")
 	}
-	
+
 	return claims, nil
 }
 
