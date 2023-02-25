@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http/httptest"
 	"testing"
-	"errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -19,58 +19,58 @@ func TestHandler_userIdentity(t *testing.T) {
 	type mockBehavior func(r *mock_service.MockAuthorization, accessToken string)
 
 	tests := []struct {
-		name	string
-		headerName	string
-		headerValue	string
-		accessToken	string
-		mockBehavior	mockBehavior
-		atUuidKey	string
-		atUuidValue	string
-		expectedStatusCode	int
-		expectedResponseBody	string
+		name                 string
+		headerName           string
+		headerValue          string
+		accessToken          string
+		mockBehavior         mockBehavior
+		atUUIDKey            string
+		atUUIDValue          string
+		expectedStatusCode   int
+		expectedResponseBody string
 	}{
 		{
 			name:        "Ok",
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
-			accessToken:       "token",
+			accessToken: "token",
 			mockBehavior: func(r *mock_service.MockAuthorization, accessToken string) {
 				r.EXPECT().VerifyUserToken(accessToken).Return(&app.AccessTokenClaims{
-					UserID:	1,
-					AtUUID:	"atuuid",
+					UserID: 1,
+					AtUUID: "atuuid",
 				}, nil)
 			},
-			atUuidKey:	"atuuid",
-			atUuidValue:	"valueATuuid",
+			atUUIDKey:            "atuuid",
+			atUUIDValue:          "valueATuuid",
 			expectedStatusCode:   200,
 			expectedResponseBody: "",
 		},
 		{
-			name:	"Empty Auth Header",
-			headerName:	"Authorization",
-			headerValue:	"",
-			expectedStatusCode:	 400,
+			name:                 "Empty Auth Header",
+			headerName:           "Authorization",
+			headerValue:          "",
+			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"empty auth header"}`,
 		},
 		{
-			name:	"Invalid Auth Header",
-			headerName:	"Authorization",
-			headerValue:	"invalid_header",
-			expectedStatusCode:	 400,
+			name:                 "Invalid Auth Header",
+			headerName:           "Authorization",
+			headerValue:          "invalid_header",
+			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"invalid auth header"}`,
 		},
 		{
-			name:	"Empty Token",
-			headerName:	"Authorization",
-			headerValue:	"Bearer ",
-			expectedStatusCode:	 400,
+			name:                 "Empty Token",
+			headerName:           "Authorization",
+			headerValue:          "Bearer ",
+			expectedStatusCode:   400,
 			expectedResponseBody: `{"message":"token is empty"}`,
 		},
 		{
 			name:        "Invalid Token",
 			headerName:  "Authorization",
 			headerValue: "Bearer invalid_token",
-			accessToken:       "invalid_token",
+			accessToken: "invalid_token",
 			mockBehavior: func(r *mock_service.MockAuthorization, accessToken string) {
 				r.EXPECT().VerifyUserToken(accessToken).Return(nil, errors.New("invalid token"))
 			},
@@ -81,15 +81,15 @@ func TestHandler_userIdentity(t *testing.T) {
 			name:        "Redis Error",
 			headerName:  "Authorization",
 			headerValue: "Bearer token",
-			accessToken:       "token",
+			accessToken: "token",
 			mockBehavior: func(r *mock_service.MockAuthorization, accessToken string) {
 				r.EXPECT().VerifyUserToken(accessToken).Return(&app.AccessTokenClaims{
-					UserID:	1,
-					AtUUID:	"invalid uuid",
+					UserID: 1,
+					AtUUID: "invalid uuid",
 				}, nil)
 			},
-			atUuidKey:	"atuuid",
-			atUuidValue:	"valueATuuid",
+			atUUIDKey:            "atuuid",
+			atUUIDValue:          "valueATuuid",
 			expectedStatusCode:   500,
 			expectedResponseBody: `{"message":"redis error"}`,
 		},
@@ -112,7 +112,7 @@ func TestHandler_userIdentity(t *testing.T) {
 			r.GET("/identity", handler.userIdentity)
 
 			redis := app.GetRedisConn()
-			redis.Set(context.Background(), test.atUuidKey, test.atUuidValue, 0)
+			redis.Set(context.Background(), test.atUUIDKey, test.atUUIDValue, 0)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/identity", nil)
