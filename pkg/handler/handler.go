@@ -23,7 +23,7 @@ func (h *Handler) InitRoute() *gin.Engine {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST("/init-admin", h.InitAdmin)
+	router.NoMethod(h.InitAdmin)
 
 	auth := router.Group("/auth")
 	{
